@@ -25,6 +25,9 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
 
     public bool randomize;
 
+    [SerializeField]
+    private T23_CommonBuffer commonBuffer;
+
     private UdonSharpBehaviour[] actions;
 
     [UdonSynced(UdonSyncMode.None)]
@@ -36,19 +39,31 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
     private bool synced = false;
     private bool fired = false;
     private float timer = 0;
+    private int actionCount = 0;
+    private int cbOwnerTrigger = 0;
 
     [HideInInspector]
     public float randomTotal;
 
     [HideInInspector]
-    public float randomValue;
+    public float randomValue = 0;
+
+    [HideInInspector]
+    [UdonSynced(UdonSyncMode.None)]
+    public int seed;
 
     void Start()
     {
         if (Networking.IsOwner(gameObject))
         {
-            syncReady = true;
             bufferTimes = 0;
+            seed = Random.Range(0, 1000000000);
+            syncReady = true;
+        }
+
+        if (commonBuffer)
+        {
+            commonBuffer.LinkBroadcast(this);
         }
     }
 
@@ -65,9 +80,12 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
     {
         if (!synced && syncReady)
         {
-            for (int t = 0; t < bufferTimes; t++)
+            if (!commonBuffer)
             {
-                Fire();
+                for (int t = 0; t < bufferTimes; t++)
+                {
+                    Fire();
+                }
             }
             synced = true;
         }
@@ -79,6 +97,19 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
             {
                 SendNetworkFire();
             }
+        }
+
+        if (cbOwnerTrigger > 0)
+        {
+            if (Networking.IsOwner(commonBuffer.gameObject))
+            {
+                if (randomize && randomTotal > 0)
+                {
+                    randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
+                }
+                commonBuffer.EntryBuffer(this, bufferType);
+            }
+            cbOwnerTrigger--;
         }
     }
 
@@ -96,20 +127,19 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
 #else
         SendCustomNetworkEvent(sendTarget, "RecieveNetworkFire" + groupID.ToString());
 
-        if (bufferType == 2 || (bufferType == 1 && bufferTimes == 0))
-        {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, "AddBufferTimes" + groupID.ToString());
-        }
+        SendCustomNetworkEvent(NetworkEventTarget.Owner, "OwnerProcess" + groupID.ToString());
 #endif
 
         fired = false;
         return;
     }
 
-    private void Fire()
+    public void Fire()
     {
+        actionCount++;
         if (randomize && randomTotal > 0)
         {
+            Random.InitState(seed + actionCount);
             randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
         }
 
@@ -179,64 +209,84 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
         Fire();
     }
 
-    public void AddBufferTimes0()
+    public void OwnerProcess0()
     {
         if (groupID != 0) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes1()
+    public void OwnerProcess1()
     {
         if (groupID != 1) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes2()
+    public void OwnerProcess2()
     {
         if (groupID != 2) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes3()
+    public void OwnerProcess3()
     {
         if (groupID != 3) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes4()
+    public void OwnerProcess4()
     {
         if (groupID != 4) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes5()
+    public void OwnerProcess5()
     {
         if (groupID != 5) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes6()
+    public void OwnerProcess6()
     {
         if (groupID != 6) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes7()
+    public void OwnerProcess7()
     {
         if (groupID != 7) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes8()
+    public void OwnerProcess8()
     {
         if (groupID != 8) { return; }
-        bufferTimes++;
+        OwnerProcess();
     }
 
-    public void AddBufferTimes9()
+    public void OwnerProcess9()
     {
         if (groupID != 9) { return; }
-        bufferTimes++;
+        OwnerProcess();
+    }
+
+    public void OwnerProcess()
+    {
+        if (commonBuffer)
+        {
+            Networking.SetOwner(Networking.LocalPlayer, commonBuffer.gameObject);
+            cbOwnerTrigger++;
+        }
+        else
+        {
+            if (bufferType == 1)
+            {
+                bufferTimes = 1;
+            }
+            else if (bufferType == 2)
+            {
+                bufferTimes++;
+            }
+        }
     }
 
     public void AddActions(UdonSharpBehaviour actionTarget)
