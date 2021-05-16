@@ -64,6 +64,8 @@ public class T23_UseAttachedStation : UdonSharpBehaviour
                 }
             }
         }
+
+        this.enabled = false;
     }
 
     public void Action()

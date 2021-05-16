@@ -4,18 +4,20 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class T23_SetChildrenActive : UdonSharpBehaviour
+public class T23_SetRandomChildActive : UdonSharpBehaviour
 {
     public int groupID;
 
     [SerializeField]
     private GameObject[] recievers;
-
+    
     [SerializeField]
     private bool operation;
 
     [SerializeField]
     private bool takeOwnership;
+
+    private int seedOffset = 100;
 
     private bool executing = false;
     private bool[] executed;
@@ -155,10 +157,29 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
 
     private void Execute(GameObject target)
     {
+        int[] lottery = new int[target.transform.childCount];
+        int inactiveCnt = 0;
         for (int cidx = 0; cidx < target.transform.childCount; cidx++)
         {
-            target.transform.GetChild(cidx).gameObject.SetActive(operation);
+            if (target.transform.GetChild(cidx).gameObject.activeSelf != operation)
+            {
+                lottery[inactiveCnt] = cidx;
+                inactiveCnt++;
+            }
         }
+
+        if (inactiveCnt == 0)
+        {
+            return;
+        }
+
+        if (broadcastGrobal)
+        {
+            Random.InitState(broadcastGrobal.seed + seedOffset);
+            seedOffset++;
+        }
+
+        target.transform.GetChild(lottery[Random.Range(0, inactiveCnt)]).gameObject.SetActive(operation);
     }
 
     private bool RandomJudgement()

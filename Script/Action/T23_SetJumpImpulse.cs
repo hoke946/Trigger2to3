@@ -67,6 +67,8 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
                 }
             }
         }
+
+        this.enabled = false;
     }
 
     public void Action()

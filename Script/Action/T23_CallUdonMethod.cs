@@ -90,6 +90,8 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
         // local simulation
         takeOwnership = false;
 #endif
+
+        this.enabled = false;
     }
 
     void Update()
@@ -113,12 +115,14 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
             if (!failure)
             {
                 executing = false;
+                this.enabled = false;
             }
 
             waitTimer += Time.deltaTime;
             if (waitTimer > 5)
             {
                 executing = false;
+                this.enabled = false;
             }
         }
     }
@@ -142,6 +146,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
             {
                 Networking.SetOwner(Networking.LocalPlayer, udonBehaviour.gameObject);
                 executing = true;
+                this.enabled = true;
                 executed = false;
                 waitTimer = 0;
             }

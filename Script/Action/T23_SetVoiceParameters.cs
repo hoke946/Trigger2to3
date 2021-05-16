@@ -79,6 +79,8 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
                 }
             }
         }
+
+        this.enabled = false;
     }
 
     public void Action()

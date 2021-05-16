@@ -82,6 +82,8 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
         // local simulation
         takeOwnership = false;
 #endif
+
+        this.enabled = false;
     }
 
     void Update()
@@ -111,12 +113,14 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
             if (!failure)
             {
                 executing = false;
+                this.enabled = false;
             }
 
             waitTimer += Time.deltaTime;
             if (waitTimer > 5)
             {
                 executing = false;
+                this.enabled = false;
             }
         }
     }
@@ -133,6 +137,7 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
                 {
                     Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
                     executing = true;
+                    this.enabled = true;
                     executed = new bool[recievers.Length];
                     waitTimer = 0;
                 }

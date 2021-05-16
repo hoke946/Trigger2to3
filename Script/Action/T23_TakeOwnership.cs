@@ -67,6 +67,8 @@ public class T23_TakeOwnership : UdonSharpBehaviour
                 }
             }
         }
+
+        this.enabled = false;
     }
 
     public void Action()

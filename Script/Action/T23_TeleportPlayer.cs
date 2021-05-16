@@ -73,6 +73,8 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
                 }
             }
         }
+
+        this.enabled = false;
     }
 
     public void Action()

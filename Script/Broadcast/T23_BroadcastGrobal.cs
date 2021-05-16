@@ -73,6 +73,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
         if (useablePlayer == 2 && !Networking.IsOwner(gameObject)) { return; }
 
         fired = true;
+        this.enabled = true;
         timer = 0;
     }
 
@@ -88,6 +89,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
                 }
             }
             synced = true;
+            this.enabled = false;
         }
 
         if (fired)
@@ -110,6 +112,10 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
                 commonBuffer.EntryBuffer(this, bufferType);
             }
             cbOwnerTrigger--;
+            if (cbOwnerTrigger == 0)
+            {
+                this.enabled = false;
+            }
         }
     }
 
@@ -118,6 +124,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
         if (actions == null)
         {
             fired = false;
+            this.enabled = false;
             return;
         }
 
@@ -131,6 +138,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
 #endif
 
         fired = false;
+        this.enabled = false;
         return;
     }
 
@@ -275,6 +283,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, commonBuffer.gameObject);
             cbOwnerTrigger++;
+            this.enabled = true;
         }
         else
         {

@@ -24,12 +24,18 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
 
     [HideInInspector]
     public float randomValue;
-    
+
+    void Start()
+    {
+        this.enabled = false;
+    }
+
     public void Trigger()
     {
         if (delayInSeconds > 0)
         {
             fired = true;
+            this.enabled = true;
             timer = 0;
         }
         else
@@ -47,6 +53,7 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
             {
                 Fire(false);
                 fired = false;
+                this.enabled = false;
             }
         }
     }

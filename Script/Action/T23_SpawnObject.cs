@@ -70,6 +70,8 @@ public class T23_SpawnObject : UdonSharpBehaviour
                 }
             }
         }
+
+        this.enabled = false;
     }
 
     public void Action()
