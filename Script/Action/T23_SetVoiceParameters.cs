@@ -7,6 +7,7 @@ using VRC.Udon;
 public class T23_SetVoiceParameters : UdonSharpBehaviour
 {
     public int groupID;
+    public int priority;
 
     [SerializeField]
     private float distanceFar;
@@ -46,7 +47,7 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
 
         if (broadcastLocal)
         {
-            broadcastLocal.AddActions(this);
+            broadcastLocal.AddActions(this, priority);
 
             if (broadcastLocal.randomize)
             {
@@ -69,7 +70,7 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
 
             if (broadcastGrobal)
             {
-                broadcastGrobal.AddActions(this);
+                broadcastGrobal.AddActions(this, priority);
 
                 if (broadcastGrobal.randomize)
                 {
@@ -92,6 +93,8 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
         Networking.LocalPlayer.SetVoiceGain(gain);
         Networking.LocalPlayer.SetVoiceLowpass(lowpass);
         Networking.LocalPlayer.SetVoiceVolumetricRadius(volumetricRadius);
+
+        Finish();
     }
 
     private bool RandomJudgement()
@@ -112,5 +115,17 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
         }
 
         return false;
+    }
+
+    private void Finish()
+    {
+        if (broadcastLocal)
+        {
+            broadcastLocal.NextAction();
+        }
+        else if (broadcastGrobal)
+        {
+            broadcastGrobal.NextAction();
+        }
     }
 }

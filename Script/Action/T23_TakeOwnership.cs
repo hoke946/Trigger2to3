@@ -7,6 +7,7 @@ using VRC.Udon;
 public class T23_TakeOwnership : UdonSharpBehaviour
 {
     public int groupID;
+    public int priority;
 
     [SerializeField]
     private GameObject[] recievers;
@@ -34,7 +35,7 @@ public class T23_TakeOwnership : UdonSharpBehaviour
 
         if (broadcastLocal)
         {
-            broadcastLocal.AddActions(this);
+            broadcastLocal.AddActions(this, priority);
 
             if (broadcastLocal.randomize)
             {
@@ -57,7 +58,7 @@ public class T23_TakeOwnership : UdonSharpBehaviour
 
             if (broadcastGrobal)
             {
-                broadcastGrobal.AddActions(this);
+                broadcastGrobal.AddActions(this, priority);
 
                 if (broadcastGrobal.randomize)
                 {
@@ -82,6 +83,8 @@ public class T23_TakeOwnership : UdonSharpBehaviour
                 Networking.SetOwner(Networking.LocalPlayer, recievers[i]);
             }
         }
+
+        Finish();
     }
 
     private bool RandomJudgement()
@@ -102,5 +105,17 @@ public class T23_TakeOwnership : UdonSharpBehaviour
         }
 
         return false;
+    }
+
+    private void Finish()
+    {
+        if (broadcastLocal)
+        {
+            broadcastLocal.NextAction();
+        }
+        else if (broadcastGrobal)
+        {
+            broadcastGrobal.NextAction();
+        }
     }
 }

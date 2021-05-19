@@ -29,6 +29,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
     private T23_CommonBuffer commonBuffer;
 
     private UdonSharpBehaviour[] actions;
+    private int[] priorities;
 
     [UdonSynced(UdonSyncMode.None)]
     private bool syncReady;
@@ -41,6 +42,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
     private float timer = 0;
     private int actionCount = 0;
     private int cbOwnerTrigger = 0;
+    private int actionIndex = 0;
 
     [HideInInspector]
     public float randomTotal;
@@ -151,9 +153,19 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
             randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
         }
 
-        for (int i = 0; i < actions.Length; i++)
+        actionIndex = 0;
+        if (actionIndex < actions.Length)
         {
-            actions[i].SendCustomEvent("Action");
+            actions[actionIndex].SendCustomEvent("Action");
+        }
+    }
+
+    public void NextAction()
+    {
+        actionIndex++;
+        if (actionIndex < actions.Length)
+        {
+            actions[actionIndex].SendCustomEvent("Action");
         }
     }
 
@@ -298,24 +310,60 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
         }
     }
 
-    public void AddActions(UdonSharpBehaviour actionTarget)
+    public void AddActions(UdonSharpBehaviour actionTarget, int priority)
     {
         if (actions == null)
         {
             actions = new UdonSharpBehaviour[1];
             actions[0] = actionTarget;
+            priorities = new int[1];
+            priorities[0] = priority;
         }
         else
         {
-            actions = AddUdonSharpBehaviourArray(actions, actionTarget);
+            int i = 0;
+            while (i < actions.Length)
+            {
+                if (priorities[i] > priority)
+                {
+                    break;
+                }
+                i++;
+            }
+            actions = AddUdonSharpBehaviourArray(actions, actionTarget, i);
+            priorities = AddIntArray(priorities, priority, i);
         }
     }
 
-    private UdonSharpBehaviour[] AddUdonSharpBehaviourArray(UdonSharpBehaviour[] array, UdonSharpBehaviour value)
+    private UdonSharpBehaviour[] AddUdonSharpBehaviourArray(UdonSharpBehaviour[] array, UdonSharpBehaviour value, int index)
     {
         UdonSharpBehaviour[] new_array = new UdonSharpBehaviour[array.Length + 1];
         array.CopyTo(new_array, 0);
-        new_array[new_array.Length - 1] = value;
+        for (int i = 0; i < index; i++)
+        {
+            new_array[i] = array[i];
+        }
+        new_array[index] = value;
+        for (int i = index + 1; i < new_array.Length; i++)
+        {
+            new_array[i] = array[i - 1];
+        }
+        return new_array;
+    }
+
+    private int[] AddIntArray(int[] array, int value, int index)
+    {
+        int[] new_array = new int[array.Length + 1];
+        array.CopyTo(new_array, 0);
+        for (int i = 0; i < index; i++)
+        {
+            new_array[i] = array[i];
+        }
+        new_array[index] = value;
+        for (int i = index + 1; i < new_array.Length; i++)
+        {
+            new_array[i] = array[i - 1];
+        }
         return new_array;
     }
 }

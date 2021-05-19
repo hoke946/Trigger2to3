@@ -7,6 +7,7 @@ using VRC.Udon;
 public class T23_SetPlayerSpeed : UdonSharpBehaviour
 {
     public int groupID;
+    public int priority;
 
     [SerializeField]
     private float walkSpeed = 2;
@@ -40,7 +41,7 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
 
         if (broadcastLocal)
         {
-            broadcastLocal.AddActions(this);
+            broadcastLocal.AddActions(this, priority);
 
             if (broadcastLocal.randomize)
             {
@@ -63,7 +64,7 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
 
             if (broadcastGrobal)
             {
-                broadcastGrobal.AddActions(this);
+                broadcastGrobal.AddActions(this, priority);
 
                 if (broadcastGrobal.randomize)
                 {
@@ -84,6 +85,8 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
         Networking.LocalPlayer.SetWalkSpeed(walkSpeed);
         Networking.LocalPlayer.SetRunSpeed(runSpeed);
         Networking.LocalPlayer.SetStrafeSpeed(strafeSpeed);
+
+        Finish();
     }
 
     private bool RandomJudgement()
@@ -104,5 +107,17 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
         }
 
         return false;
+    }
+
+    private void Finish()
+    {
+        if (broadcastLocal)
+        {
+            broadcastLocal.NextAction();
+        }
+        else if (broadcastGrobal)
+        {
+            broadcastGrobal.NextAction();
+        }
     }
 }

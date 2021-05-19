@@ -8,6 +8,7 @@ using VRC.Udon.Common.Interfaces;
 public class T23_CallUdonMethod : UdonSharpBehaviour
 {
     public int groupID;
+    public int priority;
 
     [SerializeField]
     private UdonBehaviour udonBehaviour;
@@ -52,7 +53,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
 
         if (broadcastLocal)
         {
-            broadcastLocal.AddActions(this);
+            broadcastLocal.AddActions(this, priority);
 
             if (broadcastLocal.randomize)
             {
@@ -75,7 +76,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
 
             if (broadcastGrobal)
             {
-                broadcastGrobal.AddActions(this);
+                broadcastGrobal.AddActions(this, priority);
 
                 if (broadcastGrobal.randomize)
                 {
@@ -116,6 +117,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
             {
                 executing = false;
                 this.enabled = false;
+                Finish();
             }
 
             waitTimer += Time.deltaTime;
@@ -123,6 +125,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
             {
                 executing = false;
                 this.enabled = false;
+                Finish();
             }
         }
     }
@@ -155,6 +158,11 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
                 Execute();
             }
         }
+
+        if (!takeOwnership)
+        {
+            Finish();
+        }
     }
 
     private void Execute()
@@ -180,5 +188,17 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
         }
 
         return false;
+    }
+
+    private void Finish()
+    {
+        if (broadcastLocal)
+        {
+            broadcastLocal.NextAction();
+        }
+        else if (broadcastGrobal)
+        {
+            broadcastGrobal.NextAction();
+        }
     }
 }
