@@ -4,7 +4,7 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class T23_OnkeyUp : UdonSharpBehaviour
+public class T23_OnKeyUp : UdonSharpBehaviour
 {
     public int groupID;
 
