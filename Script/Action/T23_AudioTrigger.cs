@@ -1,0 +1,193 @@
+﻿
+using UdonSharp;
+using UnityEngine;
+using VRC.SDKBase;
+using VRC.Udon;
+
+public class T23_AudioTrigger : UdonSharpBehaviour
+{
+    public int groupID;
+    public int priority;
+
+    [SerializeField]
+    private AudioSource[] recievers;
+
+    [SerializeField]
+    private bool takeOwnership;
+
+    private bool executing = false;
+    private bool[] executed;
+    private float waitTimer;
+
+    [SerializeField, Range(0, 1)]
+    private float randomAvg;
+
+    private float randomMin = 0;
+    private float randomMax = 0;
+
+    private T23_BroadcastLocal broadcastLocal;
+    private T23_BroadcastGrobal broadcastGrobal;
+
+    void Start()
+    {
+        T23_BroadcastLocal[] broadcastLocals = GetComponents<T23_BroadcastLocal>();
+        for (int i = 0; i < broadcastLocals.Length; i++)
+        {
+            if (broadcastLocals[i].groupID == groupID)
+            {
+                broadcastLocal = broadcastLocals[i];
+                break;
+            }
+        }
+
+        if (broadcastLocal)
+        {
+            broadcastLocal.AddActions(this, priority);
+
+            if (broadcastLocal.randomize)
+            {
+                randomMin = broadcastLocal.randomTotal;
+                broadcastLocal.randomTotal += randomAvg;
+                randomMax = broadcastLocal.randomTotal;
+            }
+        }
+        else
+        {
+            T23_BroadcastGrobal[] broadcastGrobals = GetComponents<T23_BroadcastGrobal>();
+            for (int i = 0; i < broadcastGrobals.Length; i++)
+            {
+                if (broadcastGrobals[i].groupID == groupID)
+                {
+                    broadcastGrobal = broadcastGrobals[i];
+                    break;
+                }
+            }
+
+            if (broadcastGrobal)
+            {
+                broadcastGrobal.AddActions(this, priority);
+
+                if (broadcastGrobal.randomize)
+                {
+                    randomMin = broadcastGrobal.randomTotal;
+                    broadcastGrobal.randomTotal += randomAvg;
+                    randomMax = broadcastGrobal.randomTotal;
+                }
+            }
+        }
+
+#if UNITY_EDITOR
+        // local simulation
+        takeOwnership = false;
+#endif
+
+        this.enabled = false;
+    }
+
+    void Update()
+    {
+        if (executing)
+        {
+            bool failure = false;
+            for (int i = 0; i < recievers.Length; i++)
+            {
+                if (recievers[i])
+                {
+                    if (!executed[i])
+                    {
+                        if (Networking.IsOwner(recievers[i].gameObject))
+                        {
+                            Execute(recievers[i]);
+                            executed[i] = true;
+                        }
+                        else
+                        {
+                            failure = true;
+                        }
+                    }
+                }
+            }
+
+            if (!failure)
+            {
+                executing = false;
+                this.enabled = false;
+                Finish();
+            }
+
+            waitTimer += Time.deltaTime;
+            if (waitTimer > 5)
+            {
+                executing = false;
+                this.enabled = false;
+                Finish();
+            }
+        }
+    }
+
+    public void Action()
+    {
+        if (!RandomJudgement()) { return; }
+
+        for (int i = 0; i < recievers.Length; i++)
+        {
+            if (recievers[i])
+            {
+                if (takeOwnership)
+                {
+                    Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
+                    executing = true;
+                    this.enabled = true;
+                    executed = new bool[recievers.Length];
+                    waitTimer = 0;
+                }
+                else
+                {
+                    Execute(recievers[i]);
+                }
+            }
+        }
+
+        if (!takeOwnership)
+        {
+            Finish();
+        }
+    }
+
+    private void Execute(AudioSource target)
+    {
+        target.PlayOneShot(target.clip);
+    }
+
+    private bool RandomJudgement()
+    {
+        if (broadcastLocal)
+        {
+            if (!broadcastLocal.randomize || (broadcastLocal.randomValue >= randomMin && broadcastLocal.randomValue < randomMax))
+            {
+                return true;
+            }
+        }
+        else if (broadcastGrobal)
+        {
+            if (!broadcastGrobal.randomize || (broadcastGrobal.randomValue >= randomMin && broadcastGrobal.randomValue < randomMax))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void Finish()
+    {
+        if (broadcastLocal)
+        {
+            broadcastLocal.NextAction();
+        }
+        else if (broadcastGrobal)
+        {
+            broadcastGrobal.NextAction();
+        }
+    }
+}
