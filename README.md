@@ -1,26 +1,26 @@
 # Trigger2to3
-VRChat SDK3��VRC_Trigger���g�������l�̂��߂̑�փc�[���ł��B  
-VRC_Trigger�̋@�\�̑啔������荞�݁AVRC_Trigger�ɋ߂��g�p���Ń��[���h�M�~�b�N��g�ݗ��Ă邱�Ƃ��ł��܂��B  
-VRC_Trigger��UI�����̂悤��3��Udon�ŕ\�����āA�������܂��B  
+VRChat SDK3でVRC_Triggerを使いたい人のための代替ツールです。  
+VRC_Triggerの機能の大部分を取り込み、VRC_Triggerに近い使用感でワールドギミックを組み立てることができます。  
+VRC_TriggerのUIを次のような3つのUdonで表現して、実現します。  
   
-![T23pic](https://user-images.githubusercontent.com/44010396/106849398-15e22300-665f-11eb-9408-a473315cc608.png)  
+![Image](https://user-images.githubusercontent.com/44010396/120924864-c563fa80-c710-11eb-89d4-8d8d40c278b4.png)  
   
-## �_�E�����[�h
+## ダウンロード
   
-[������](https://github.com/hoke946/Trigger2to3/releases)�������ł��܂��B
+[こちら](https://github.com/hoke946/Trigger2to3/releases)から入手できます。
   
-## �������@�E�g�p���@
-[������](https://www.wicurio.com/trigger2to3/)���Q�Ƃ��Ă��������B
+## 導入方法・使用方法
+[こちら](https://www.wicurio.com/trigger2to3/)を参照してください。
   
-## �g�p����ɂ�������
-���c�[���̓x�[�^�łł���A���肵�������ۏ؂��܂���B  
-�S�Ă̋@�\���ׂ������������Ɍ��J���Ă��邽�߁A�s�����������\���͔��ɍ����ł��B  
-���c�[���̓x�[�^�ł̂��߁A�s�����������\���������ł��B  
-�g���Ă݂����z�A���_�A���ӌ��₲�v�]�Ȃǂ���܂�����A  
-Twitter�ɂĎ��̃n�b�V���^�O�ł��񂹂��������B�� #Trigger2to3  
-�܂��́A[@hoke946](https://twitter.com/hoke946)�ւ̒����v��DM�ł���肠��܂���B  
+## 使用にあたって
+当ツールはベータ版であり、安定した動作を保証しません。  
+全ての機能を細かく試験せずに公開しているため、不具合が発生する可能性は非常に高いです。  
+当ツールはベータ版のため、不具合が発生する可能性が高いです。  
+使ってみた感想、問題点、ご意見やご要望などありましたら、  
+Twitterにて次のハッシュタグでお寄せください。⇒ #Trigger2to3  
+または、[@hoke946](https://twitter.com/hoke946)への直リプやDMでも問題ありません。  
   
-## ���C�Z���X
-MIT License�ŉ^�p���܂��B  
-���c�[����g�ݍ��񂾃M�~�b�N�̔z�z���\�ł��B  
-���̍ۂ�LICENSE�t�@�C���̑g�ݍ��݂ƁA������ւ̃����N�����肢���܂��B  
+## ライセンス
+MIT Licenseで運用します。  
+当ツールを組み込んだギミックの配布も可能です。  
+その際はLICENSEファイルの組み込みと、こちらへのリンクをお願いします。  
