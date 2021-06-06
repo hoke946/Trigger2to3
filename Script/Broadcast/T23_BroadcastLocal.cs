@@ -4,9 +4,15 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+#endif
+
 public class T23_BroadcastLocal : UdonSharpBehaviour
 {
     public int groupID;
+    public string title;
+    public const bool isBroadcast = true;
 
     [SerializeField]
     private float delayInSeconds;
@@ -26,6 +32,50 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
 
     [HideInInspector]
     public float randomValue;
+
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_BroadcastLocal))]
+    internal class T23_BroadcastLocalEditor : Editor
+    {
+        T23_BroadcastLocal body;
+        T23_Master master;
+
+        void OnEnable()
+        {
+            body = target as T23_BroadcastLocal;
+
+            master = T23_Master.GetMaster(body, body.groupID, 0, true, body.title);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (master == null)
+            {
+                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 0);
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Broadcast");
+
+            if (master)
+            {
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+            }
+            else
+            {
+                body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
+            }
+
+            body.delayInSeconds = EditorGUILayout.FloatField("Delay in Seconds", body.delayInSeconds);
+            body.randomize = EditorGUILayout.Toggle("Randomize", body.randomize);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 
     void Start()
     {

@@ -4,16 +4,23 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+using UnityEditorInternal;
+#endif
+
 public class T23_SetRandomChildActive : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
+    public string title;
+    public const bool isAction = true;
 
     [SerializeField]
     private GameObject[] recievers;
     
     [SerializeField]
-    private bool operation;
+    private bool operation = true;
 
     [SerializeField]
     private bool takeOwnership;
@@ -32,6 +39,78 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGrobal broadcastGrobal;
+
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_SetRandomChildActive))]
+    internal class T23_SetRandomChildActiveEditor : Editor
+    {
+        T23_SetRandomChildActive body;
+        T23_Master master;
+
+        private ReorderableList recieverReorderableList;
+
+        public enum BoolOperation
+        {
+            True = 1,
+            False = 0
+        }
+
+        void OnEnable()
+        {
+            body = target as T23_SetRandomChildActive;
+
+            master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (master == null)
+            {
+                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Action");
+
+            if (master)
+            {
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                T23_EditorUtility.ShowSwapButton(master, body.title);
+                body.priority = master.actionTitles.IndexOf(body.title);
+            }
+            else
+            {
+                body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
+                body.priority = EditorGUILayout.IntField("Priority", body.priority);
+            }
+
+            SerializedProperty recieverProp = serializedObject.FindProperty("recievers");
+            if (recieverReorderableList == null)
+            {
+                recieverReorderableList = new ReorderableList(serializedObject, recieverProp);
+                recieverReorderableList.draggable = true;
+                recieverReorderableList.displayAdd = true;
+                recieverReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Recievers");
+                recieverReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
+                {
+                    rect.height = EditorGUIUtility.singleLineHeight;
+                    body.recievers[index] = (GameObject)EditorGUI.ObjectField(rect, body.recievers[index], typeof(GameObject), true);
+                };
+            }
+            recieverReorderableList.DoLayoutList();
+
+            body.operation = (BoolOperation)EditorGUILayout.EnumPopup("Operation", (BoolOperation)System.Convert.ToInt32(body.operation)) == BoolOperation.True;
+
+            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
+            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 
     void Start()
     {
@@ -132,7 +211,11 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
 
     public void Action()
     {
-        if (!RandomJudgement()) { return; }
+        if (!RandomJudgement())
+        {
+            Finish();
+            return;
+        }
 
         for (int i = 0; i < recievers.Length; i++)
         {

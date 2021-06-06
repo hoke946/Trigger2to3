@@ -8,34 +8,28 @@ using VRC.Udon;
 using UnityEditor;
 #endif
 
-public class T23_OnParticleCollision : UdonSharpBehaviour
+public class T23_OnPlayerRespawn : UdonSharpBehaviour
 {
     public int groupID;
     public string title;
     public const bool isTrigger = true;
 
-    // 用途・処理方法不明
-    //[SerializeField]
-    //private bool triggerIndividuals = true;
-
     [SerializeField]
-    private LayerMask layers = 0;
+    private bool local;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGrobal broadcastGrobal;
 
-    private VRCPlayerApi enterPlayer;
-
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_OnParticleCollision))]
-    internal class T23_OnParticleCollisionEditor : Editor
+    [CustomEditor(typeof(T23_OnPlayerRespawn))]
+    internal class T23_OnPlayerRespawnEditor : Editor
     {
-        T23_OnParticleCollision body;
+        T23_OnPlayerRespawn body;
         T23_Master master;
 
         void OnEnable()
         {
-            body = target as T23_OnParticleCollision;
+            body = target as T23_OnPlayerRespawn;
 
             master = T23_Master.GetMaster(body, body.groupID, 1, true, body.title);
         }
@@ -62,7 +56,7 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.layers = T23_EditorUtility.LayerMaskField("Layers", body.layers);
+            body.local = EditorGUILayout.Toggle("Local", body.local);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -95,25 +89,12 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
         }
     }
 
-    private void OnParticleCollision(GameObject other)
+    public override void OnPlayerRespawn(VRCPlayerApi player)
     {
-        if ((layers.value & 1 << other.layer) == 0) { return; }
-
-        Trigger();
-    }
-
-    public override void OnPlayerParticleCollision(VRCPlayerApi player)
-    {
-        if (player == Networking.LocalPlayer)
+        if (!local || player == Networking.LocalPlayer)
         {
-            if ((layers.value & 1 << LayerMask.NameToLayer("PlayerLocal")) == 0) { return; }
+            Trigger();
         }
-        else
-        {
-            if ((layers.value & 1 << LayerMask.NameToLayer("Player")) == 0) { return; }
-        }
-
-        Trigger();
     }
 
     private void Trigger()

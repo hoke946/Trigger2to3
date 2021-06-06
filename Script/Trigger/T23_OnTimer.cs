@@ -4,9 +4,15 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+#endif
+
 public class T23_OnTimer : UdonSharpBehaviour
 {
     public int groupID;
+    public string title;
+    public const bool isTrigger = true;
 
     [SerializeField]
     private bool repeat;
@@ -26,6 +32,52 @@ public class T23_OnTimer : UdonSharpBehaviour
     private float timer;
     private float nextPeriodTime;
     private bool finished;
+
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_OnTimer))]
+    internal class T23_OnTimerEditor : Editor
+    {
+        T23_OnTimer body;
+        T23_Master master;
+
+        void OnEnable()
+        {
+            body = target as T23_OnTimer;
+
+            master = T23_Master.GetMaster(body, body.groupID, 1, true, body.title);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (master == null)
+            {
+                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 1);
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Trigger");
+
+            if (master)
+            {
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+            }
+            else
+            {
+                body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
+            }
+
+            body.repeat = EditorGUILayout.Toggle("Repeat", body.repeat);
+            body.resetOnEnable = EditorGUILayout.Toggle("Reset OnEnable", body.resetOnEnable);
+            body.lowPeriodTime = EditorGUILayout.FloatField("Low Period Time", body.lowPeriodTime);
+            body.highPeriodTime = EditorGUILayout.FloatField("High Period Time", body.highPeriodTime);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 
     void Start()
     {

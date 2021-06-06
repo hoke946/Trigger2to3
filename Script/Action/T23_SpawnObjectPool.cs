@@ -3,13 +3,15 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common.Interfaces;
+using VRC.SDK3.Components;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-public class T23_SetPlayerVelocity : UdonSharpBehaviour
+public class T23_SpawnObjectPool : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
@@ -17,7 +19,17 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
     public const bool isAction = true;
 
     [SerializeField]
-    private Vector3 velocity;
+    private VRCObjectPool objectPool;
+
+    [SerializeField]
+    private Transform location;
+
+    [SerializeField]
+    private bool takeOwnership;
+
+    private bool executing = false;
+    private bool executed = false;
+    private float waitTimer;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -29,15 +41,17 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
     private T23_BroadcastGrobal broadcastGrobal;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_SetPlayerVelocity))]
-    internal class T23_SetPlayerVelocityEditor : Editor
+    [CustomEditor(typeof(T23_SpawnObjectPool))]
+    internal class T23_SpawnObjectPoolEditor : Editor
     {
-        T23_SetPlayerVelocity body;
+        T23_SpawnObjectPool body;
         T23_Master master;
+
+        private ReorderableList recieverReorderableList;
 
         void OnEnable()
         {
-            body = target as T23_SetPlayerVelocity;
+            body = target as T23_SpawnObjectPool;
 
             master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
         }
@@ -67,8 +81,10 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            body.velocity = EditorGUILayout.Vector3Field("Velocity", body.velocity);
+            body.objectPool = (VRCObjectPool)EditorGUILayout.ObjectField("Object Pool", body.objectPool, typeof(VRCObjectPool), true);
+            body.location = (Transform)EditorGUILayout.ObjectField("Location", body.location, typeof(Transform), true);
 
+            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
             body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
 
             serializedObject.ApplyModifiedProperties();
@@ -124,18 +140,84 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
             }
         }
 
+#if UNITY_EDITOR
+        // local simulation
+        takeOwnership = false;
+#endif
+
         this.enabled = false;
+    }
+
+    void Update()
+    {
+        if (executing)
+        {
+            bool failure = false;
+            if (!executed)
+            {
+                if (Networking.IsOwner(objectPool.gameObject))
+                {
+                    Execute();
+                    executed = true;
+                }
+                else
+                {
+                    failure = true;
+                }
+            }
+
+            if (!failure)
+            {
+                executing = false;
+                this.enabled = false;
+                Finish();
+            }
+
+            waitTimer += Time.deltaTime;
+            if (waitTimer > 5)
+            {
+                executing = false;
+                this.enabled = false;
+                Finish();
+            }
+        }
     }
 
     public void Action()
     {
-        if (!RandomJudgement())
+        if (!objectPool || !location || !RandomJudgement())
         {
             Finish();
             return;
         }
 
-        Networking.LocalPlayer.SetVelocity(velocity);
+        if (takeOwnership)
+        {
+            Networking.SetOwner(Networking.LocalPlayer, objectPool.gameObject);
+            executing = true;
+            this.enabled = true;
+            executed = false;
+            waitTimer = 0;
+        }
+        else
+        {
+            Execute();
+        }
+
+        if (!takeOwnership)
+        {
+            Finish();
+        }
+    }
+
+    private void Execute()
+    {
+        GameObject obj = objectPool.TryToSpawn();
+        if (obj)
+        {
+            obj.transform.position = location.position;
+            obj.transform.rotation = location.rotation;
+        }
 
         Finish();
     }

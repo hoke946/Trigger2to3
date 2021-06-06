@@ -4,10 +4,17 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+using UnityEditorInternal;
+#endif
+
 public class T23_TeleportObject : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
+    public string title;
+    public const bool isAction = true;
 
     [SerializeField]
     private GameObject[] recievers;
@@ -30,6 +37,72 @@ public class T23_TeleportObject : UdonSharpBehaviour
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGrobal broadcastGrobal;
+
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_TeleportObject))]
+    internal class T23_TeleportObjectEditor : Editor
+    {
+        T23_TeleportObject body;
+        T23_Master master;
+
+        private ReorderableList recieverReorderableList;
+
+        void OnEnable()
+        {
+            body = target as T23_TeleportObject;
+
+            master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (master == null)
+            {
+                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Action");
+
+            if (master)
+            {
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                T23_EditorUtility.ShowSwapButton(master, body.title);
+                body.priority = master.actionTitles.IndexOf(body.title);
+            }
+            else
+            {
+                body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
+                body.priority = EditorGUILayout.IntField("Priority", body.priority);
+            }
+
+            SerializedProperty recieverProp = serializedObject.FindProperty("recievers");
+            if (recieverReorderableList == null)
+            {
+                recieverReorderableList = new ReorderableList(serializedObject, recieverProp);
+                recieverReorderableList.draggable = true;
+                recieverReorderableList.displayAdd = true;
+                recieverReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Recievers");
+                recieverReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
+                {
+                    rect.height = EditorGUIUtility.singleLineHeight;
+                    body.recievers[index] = (GameObject)EditorGUI.ObjectField(rect, body.recievers[index], typeof(GameObject), true);
+                };
+            }
+            recieverReorderableList.DoLayoutList();
+
+            body.teleportLocation = (Transform)EditorGUILayout.ObjectField("Teleport Location", body.teleportLocation, typeof(Transform), true);
+
+            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
+            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 
     void Start()
     {
@@ -87,6 +160,30 @@ public class T23_TeleportObject : UdonSharpBehaviour
         this.enabled = false;
     }
 
+    public void Action()
+    {
+        if (!RandomJudgement())
+        {
+            Finish();
+            return;
+        }
+
+        for (int i = 0; i < recievers.Length; i++)
+        {
+            if (recievers[i])
+            {
+                if (takeOwnership)
+                {
+                    Networking.SetOwner(Networking.LocalPlayer, recievers[i]);
+                }
+                Execute(recievers[i]);
+            }
+        }
+
+        Finish();
+    }
+
+    /*
     void Update()
     {
         if (executing)
@@ -156,6 +253,7 @@ public class T23_TeleportObject : UdonSharpBehaviour
             Finish();
         }
     }
+    */
 
     private void Execute(GameObject target)
     {

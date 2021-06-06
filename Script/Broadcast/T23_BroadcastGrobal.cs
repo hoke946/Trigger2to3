@@ -5,9 +5,15 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+#endif
+
 public class T23_BroadcastGrobal : UdonSharpBehaviour
 {
     public int groupID;
+    public string title;
+    public const bool isBroadcast = true;
 
     [SerializeField]
     private NetworkEventTarget sendTarget;
@@ -54,6 +60,73 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
     [UdonSynced(UdonSyncMode.None)]
     public int seed;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_BroadcastGrobal))]
+    internal class T23_BroadcastGrobalEditor : Editor
+    {
+        T23_BroadcastGrobal body;
+        T23_Master master;
+
+        public enum UsablePlayer
+        {
+            Always = 0,
+            Master = 1,
+            Owner = 2
+        }
+
+        public enum BufferType
+        {
+            Unbuffered = 0,
+            BufferOne = 1,
+            Everytime = 2
+        }
+
+        void OnEnable()
+        {
+            body = target as T23_BroadcastGrobal;
+
+            master = T23_Master.GetMaster(body, body.groupID, 0, true, body.title);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (master == null)
+            {
+                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 0);
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Broadcast");
+
+            if (master)
+            {
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+            }
+            else
+            {
+                body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
+            }
+
+            if (body.groupID > 9 || body.groupID < 0)
+            {
+                EditorGUILayout.HelpBox("BroadcastGrobal は Group #0 ～ #9 の間でしか使用できません。", MessageType.Error);
+            }
+
+            body.sendTarget = (NetworkEventTarget)EditorGUILayout.EnumPopup("Send Target", body.sendTarget);
+            body.useablePlayer = (int)(UsablePlayer)EditorGUILayout.EnumPopup("Usable Player", (UsablePlayer)body.useablePlayer);
+            body.bufferType = (int)(BufferType)EditorGUILayout.EnumPopup("Buffer Type", (BufferType)body.bufferType);
+            body.delayInSeconds = EditorGUILayout.FloatField("Delay in Seconds", body.delayInSeconds);
+            body.randomize = EditorGUILayout.Toggle("Randomize", body.randomize);
+            body.commonBuffer = (T23_CommonBuffer)EditorGUILayout.ObjectField("Common Buffer", body.commonBuffer, typeof(T23_CommonBuffer), true);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
+
     void Start()
     {
         if (Networking.IsOwner(gameObject))
@@ -61,6 +134,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
             bufferTimes = 0;
             seed = Random.Range(0, 1000000000);
             syncReady = true;
+            RequestSerialization();
         }
 
         if (commonBuffer)
@@ -87,11 +161,10 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
             {
                 for (int t = 0; t < bufferTimes; t++)
                 {
-                    Fire();
+                    UnconditionalFire();
                 }
+                SetSynced();
             }
-            synced = true;
-            this.enabled = false;
         }
 
         if (fired)
@@ -121,6 +194,12 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
         }
     }
 
+    public void SetSynced()
+    {
+        synced = true;
+        this.enabled = false;
+    }
+
     private void SendNetworkFire()
     {
         if (actions == null)
@@ -146,6 +225,12 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
 
     public void Fire()
     {
+        if (!synced) { return; }
+        UnconditionalFire();
+    }
+
+    public void UnconditionalFire()
+    { 
         actionCount++;
         if (randomize && randomTotal > 0)
         {
@@ -307,6 +392,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
             {
                 bufferTimes++;
             }
+            RequestSerialization();
         }
     }
 
@@ -365,5 +451,10 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
             new_array[i] = array[i - 1];
         }
         return new_array;
+    }
+
+    public bool IsSyncReady()
+    {
+        return syncReady;
     }
 }

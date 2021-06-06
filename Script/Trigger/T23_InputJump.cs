@@ -3,39 +3,44 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Core.Config.Interfaces;
+using VRC.Udon.Common;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
 #endif
 
-public class T23_OnParticleCollision : UdonSharpBehaviour
+public class T23_InputJump : UdonSharpBehaviour
 {
     public int groupID;
     public string title;
-    public const bool isTrigger = true;
-
-    // 用途・処理方法不明
-    //[SerializeField]
-    //private bool triggerIndividuals = true;
+    public const bool isTrigger = false;
 
     [SerializeField]
-    private LayerMask layers = 0;
+    private bool inputValue = true;
+
+    [SerializeField, Range(0, 128)]
+    private int number;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGrobal broadcastGrobal;
 
-    private VRCPlayerApi enterPlayer;
-
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_OnParticleCollision))]
-    internal class T23_OnParticleCollisionEditor : Editor
+    [CustomEditor(typeof(T23_InputJump))]
+    internal class T23_InputJumpEditor : Editor
     {
-        T23_OnParticleCollision body;
+        T23_InputJump body;
         T23_Master master;
+
+        enum InputValue
+        {
+            Down = 1,
+            Up = 0
+        }
 
         void OnEnable()
         {
-            body = target as T23_OnParticleCollision;
+            body = target as T23_InputJump;
 
             master = T23_Master.GetMaster(body, body.groupID, 1, true, body.title);
         }
@@ -62,7 +67,7 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.layers = T23_EditorUtility.LayerMaskField("Layers", body.layers);
+            body.inputValue = (InputValue)EditorGUILayout.EnumPopup("Value", (InputValue)System.Convert.ToInt32(body.inputValue)) == InputValue.Down;
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -95,25 +100,12 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
         }
     }
 
-    private void OnParticleCollision(GameObject other)
+    public override void InputJump(bool value, UdonInputEventArgs args)
     {
-        if ((layers.value & 1 << other.layer) == 0) { return; }
-
-        Trigger();
-    }
-
-    public override void OnPlayerParticleCollision(VRCPlayerApi player)
-    {
-        if (player == Networking.LocalPlayer)
+        if (value == inputValue)
         {
-            if ((layers.value & 1 << LayerMask.NameToLayer("PlayerLocal")) == 0) { return; }
+            Trigger();
         }
-        else
-        {
-            if ((layers.value & 1 << LayerMask.NameToLayer("Player")) == 0) { return; }
-        }
-
-        Trigger();
     }
 
     private void Trigger()

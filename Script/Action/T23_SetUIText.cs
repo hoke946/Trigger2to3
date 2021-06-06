@@ -5,10 +5,17 @@ using VRC.SDKBase;
 using VRC.Udon;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+using UnityEditorInternal;
+#endif
+
 public class T23_SetUIText : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
+    public string title;
+    public const bool isAction = true;
 
     [SerializeField]
     private Text[] recievers;
@@ -31,6 +38,72 @@ public class T23_SetUIText : UdonSharpBehaviour
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGrobal broadcastGrobal;
+
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_SetUIText))]
+    internal class T23_SetUITextEditor : Editor
+    {
+        T23_SetUIText body;
+        T23_Master master;
+
+        private ReorderableList recieverReorderableList;
+
+        void OnEnable()
+        {
+            body = target as T23_SetUIText;
+
+            master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (master == null)
+            {
+                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Action");
+
+            if (master)
+            {
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                T23_EditorUtility.ShowSwapButton(master, body.title);
+                body.priority = master.actionTitles.IndexOf(body.title);
+            }
+            else
+            {
+                body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
+                body.priority = EditorGUILayout.IntField("Priority", body.priority);
+            }
+
+            SerializedProperty recieverProp = serializedObject.FindProperty("recievers");
+            if (recieverReorderableList == null)
+            {
+                recieverReorderableList = new ReorderableList(serializedObject, recieverProp);
+                recieverReorderableList.draggable = true;
+                recieverReorderableList.displayAdd = true;
+                recieverReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Recievers");
+                recieverReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
+                {
+                    rect.height = EditorGUIUtility.singleLineHeight;
+                    body.recievers[index] = (Text)EditorGUI.ObjectField(rect, body.recievers[index], typeof(Text), true);
+                };
+            }
+            recieverReorderableList.DoLayoutList();
+
+            body.text = EditorGUILayout.TextField("Text", body.text);
+
+            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
+            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 
     void Start()
     {
@@ -131,7 +204,11 @@ public class T23_SetUIText : UdonSharpBehaviour
 
     public void Action()
     {
-        if (!RandomJudgement()) { return; }
+        if (!RandomJudgement())
+        {
+            Finish();
+            return;
+        }
 
         for (int i = 0; i < recievers.Length; i++)
         {

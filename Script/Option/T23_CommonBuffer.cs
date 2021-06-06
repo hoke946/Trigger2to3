@@ -4,6 +4,8 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
+//[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+[UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
 public class T23_CommonBuffer : UdonSharpBehaviour
 {
     private T23_BroadcastGrobal[] broadcasts;
@@ -21,6 +23,7 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         if (Networking.IsOwner(gameObject))
         {
             syncReady = true;
+            RequestSerialization();
         }
     }
 
@@ -30,9 +33,27 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         {
             int[] broadcastIdx = CharsToIntArray(broadcastIdxChars);
 
+            foreach (var broadcast in broadcasts)
+            {
+                if (!broadcast.IsSyncReady())
+                {
+                    return;
+                }
+            }
             for (int i = 0; i < broadcastIdx.Length; i++)
             {
-                broadcasts[broadcastIdx[i]].Fire();
+                if (broadcastIdx[i] >= broadcasts.Length)
+                {
+                    return;
+                }
+            }
+            for (int i = 0; i < broadcastIdx.Length; i++)
+            {
+                broadcasts[broadcastIdx[i]].UnconditionalFire();
+            }
+            foreach (var broadcast in broadcasts)
+            {
+                broadcast.SetSynced();
             }
             synced = true;
         }
@@ -48,6 +69,10 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         else
         {
             broadcasts = AddBroadcastGrobalArray(broadcasts, broadcast);
+        }
+        if (synced)
+        {
+            broadcast.SetSynced();
         }
     }
 
@@ -67,6 +92,7 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                 broadcastIdxChars += ((char)bidx).ToString();
             }
         }
+        RequestSerialization();
     }
 
     private int[] CharsToIntArray(string charsStr)
