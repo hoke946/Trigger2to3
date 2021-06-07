@@ -8,7 +8,7 @@ using VRC.Udon;
 [UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
 public class T23_CommonBuffer : UdonSharpBehaviour
 {
-    private T23_BroadcastGrobal[] broadcasts;
+    private T23_BroadcastGlobal[] broadcasts;
 
     [UdonSynced(UdonSyncMode.None)]
     private bool syncReady;
@@ -59,16 +59,16 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         }
     }
 
-    public void LinkBroadcast(T23_BroadcastGrobal broadcast)
+    public void LinkBroadcast(T23_BroadcastGlobal broadcast)
     {
         if (broadcasts == null)
         {
-            broadcasts = new T23_BroadcastGrobal[1];
+            broadcasts = new T23_BroadcastGlobal[1];
             broadcasts[0] = broadcast;
         }
         else
         {
-            broadcasts = AddBroadcastGrobalArray(broadcasts, broadcast);
+            broadcasts = AddBroadcastGlobalArray(broadcasts, broadcast);
         }
         if (synced)
         {
@@ -76,7 +76,7 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         }
     }
 
-    public void EntryBuffer(T23_BroadcastGrobal broadcast, int bufferType)
+    public void EntryBuffer(T23_BroadcastGlobal broadcast, int bufferType)
     {
         if (bufferType == 0) { return; }
 
@@ -116,9 +116,9 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         return res;
     }
 
-    private T23_BroadcastGrobal[] AddBroadcastGrobalArray(T23_BroadcastGrobal[] array, T23_BroadcastGrobal value)
+    private T23_BroadcastGlobal[] AddBroadcastGlobalArray(T23_BroadcastGlobal[] array, T23_BroadcastGlobal value)
     {
-        T23_BroadcastGrobal[] new_array = new T23_BroadcastGrobal[array.Length + 1];
+        T23_BroadcastGlobal[] new_array = new T23_BroadcastGlobal[array.Length + 1];
         array.CopyTo(new_array, 0);
         new_array[new_array.Length - 1] = value;
         return new_array;

@@ -15,7 +15,7 @@ public class T23_OnSpawn : UdonSharpBehaviour
     public const bool isTrigger = true;
 
     private T23_BroadcastLocal broadcastLocal;
-    private T23_BroadcastGrobal broadcastGrobal;
+    private T23_BroadcastGlobal broadcastGlobal;
 
     private bool onSpawned = false;
     private bool firstFlame = true;
@@ -75,12 +75,12 @@ public class T23_OnSpawn : UdonSharpBehaviour
 
         if (!broadcastLocal)
         {
-            T23_BroadcastGrobal[] broadcastGrobals = GetComponents<T23_BroadcastGrobal>();
-            for (int i = 0; i < broadcastGrobals.Length; i++)
+            T23_BroadcastGlobal[] broadcastGlobals = GetComponents<T23_BroadcastGlobal>();
+            for (int i = 0; i < broadcastGlobals.Length; i++)
             {
-                if (broadcastGrobals[i].groupID == groupID)
+                if (broadcastGlobals[i].groupID == groupID)
                 {
-                    broadcastGrobal = broadcastGrobals[i];
+                    broadcastGlobal = broadcastGlobals[i];
                     break;
                 }
             }
@@ -115,9 +115,9 @@ public class T23_OnSpawn : UdonSharpBehaviour
         {
             broadcastLocal.Trigger();
         }
-        else if (broadcastGrobal)
+        else if (broadcastGlobal)
         {
-            broadcastGrobal.Trigger();
+            broadcastGlobal.Trigger();
         }
     }
 }

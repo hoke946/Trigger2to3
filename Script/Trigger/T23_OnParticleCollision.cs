@@ -22,7 +22,7 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
     private LayerMask layers = 0;
 
     private T23_BroadcastLocal broadcastLocal;
-    private T23_BroadcastGrobal broadcastGrobal;
+    private T23_BroadcastGlobal broadcastGlobal;
 
     private VRCPlayerApi enterPlayer;
 
@@ -83,12 +83,12 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
 
         if (!broadcastLocal)
         {
-            T23_BroadcastGrobal[] broadcastGrobals = GetComponents<T23_BroadcastGrobal>();
-            for (int i = 0; i < broadcastGrobals.Length; i++)
+            T23_BroadcastGlobal[] broadcastGlobals = GetComponents<T23_BroadcastGlobal>();
+            for (int i = 0; i < broadcastGlobals.Length; i++)
             {
-                if (broadcastGrobals[i].groupID == groupID)
+                if (broadcastGlobals[i].groupID == groupID)
                 {
-                    broadcastGrobal = broadcastGrobals[i];
+                    broadcastGlobal = broadcastGlobals[i];
                     break;
                 }
             }
@@ -122,9 +122,9 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
         {
             broadcastLocal.Trigger();
         }
-        else if (broadcastGrobal)
+        else if (broadcastGlobal)
         {
-            broadcastGrobal.Trigger();
+            broadcastGlobal.Trigger();
         }
     }
 }

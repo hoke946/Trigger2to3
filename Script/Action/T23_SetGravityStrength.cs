@@ -26,7 +26,7 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
     private float randomMax = 0;
 
     private T23_BroadcastLocal broadcastLocal;
-    private T23_BroadcastGrobal broadcastGrobal;
+    private T23_BroadcastGlobal broadcastGlobal;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_SetGravityStrength))]
@@ -101,25 +101,25 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
         }
         else
         {
-            T23_BroadcastGrobal[] broadcastGrobals = GetComponents<T23_BroadcastGrobal>();
-            for (int i = 0; i < broadcastGrobals.Length; i++)
+            T23_BroadcastGlobal[] broadcastGlobals = GetComponents<T23_BroadcastGlobal>();
+            for (int i = 0; i < broadcastGlobals.Length; i++)
             {
-                if (broadcastGrobals[i].groupID == groupID)
+                if (broadcastGlobals[i].groupID == groupID)
                 {
-                    broadcastGrobal = broadcastGrobals[i];
+                    broadcastGlobal = broadcastGlobals[i];
                     break;
                 }
             }
 
-            if (broadcastGrobal)
+            if (broadcastGlobal)
             {
-                broadcastGrobal.AddActions(this, priority);
+                broadcastGlobal.AddActions(this, priority);
 
-                if (broadcastGrobal.randomize)
+                if (broadcastGlobal.randomize)
                 {
-                    randomMin = broadcastGrobal.randomTotal;
-                    broadcastGrobal.randomTotal += randomAvg;
-                    randomMax = broadcastGrobal.randomTotal;
+                    randomMin = broadcastGlobal.randomTotal;
+                    broadcastGlobal.randomTotal += randomAvg;
+                    randomMax = broadcastGlobal.randomTotal;
                 }
             }
         }
@@ -148,9 +148,9 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
                 return true;
             }
         }
-        else if (broadcastGrobal)
+        else if (broadcastGlobal)
         {
-            if (!broadcastGrobal.randomize || (broadcastGrobal.randomValue >= randomMin && broadcastGrobal.randomValue < randomMax))
+            if (!broadcastGlobal.randomize || (broadcastGlobal.randomValue >= randomMin && broadcastGlobal.randomValue < randomMax))
             {
                 return true;
             }
@@ -165,9 +165,9 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
         {
             broadcastLocal.NextAction();
         }
-        else if (broadcastGrobal)
+        else if (broadcastGlobal)
         {
-            broadcastGrobal.NextAction();
+            broadcastGlobal.NextAction();
         }
     }
 }

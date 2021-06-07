@@ -9,7 +9,7 @@ using VRC.Udon.Common.Interfaces;
 using UnityEditor;
 #endif
 
-public class T23_BroadcastGrobal : UdonSharpBehaviour
+public class T23_BroadcastGlobal : UdonSharpBehaviour
 {
     public int groupID;
     public string title;
@@ -61,10 +61,10 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
     public int seed;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_BroadcastGrobal))]
-    internal class T23_BroadcastGrobalEditor : Editor
+    [CustomEditor(typeof(T23_BroadcastGlobal))]
+    internal class T23_BroadcastGlobalEditor : Editor
     {
-        T23_BroadcastGrobal body;
+        T23_BroadcastGlobal body;
         T23_Master master;
 
         public enum UsablePlayer
@@ -83,9 +83,17 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
 
         void OnEnable()
         {
-            body = target as T23_BroadcastGrobal;
+            body = target as T23_BroadcastGlobal;
 
             master = T23_Master.GetMaster(body, body.groupID, 0, true, body.title);
+
+            // 恥ずかしいパッチ（次回削除予定）
+            if (body.title.Contains("Grobal"))
+            {
+                body.title = body.title.Replace("Grobal", "Global");
+                master.broadcastTitles[0] = body.title;
+                master.broadcastSet.title = body.title;
+            }
         }
 
         public override void OnInspectorGUI()
@@ -112,7 +120,7 @@ public class T23_BroadcastGrobal : UdonSharpBehaviour
 
             if (body.groupID > 9 || body.groupID < 0)
             {
-                EditorGUILayout.HelpBox("BroadcastGrobal は Group #0 ～ #9 の間でしか使用できません。", MessageType.Error);
+                EditorGUILayout.HelpBox("BroadcastGlobal は Group #0 ～ #9 の間でしか使用できません。", MessageType.Error);
             }
 
             body.sendTarget = (NetworkEventTarget)EditorGUILayout.EnumPopup("Send Target", body.sendTarget);
