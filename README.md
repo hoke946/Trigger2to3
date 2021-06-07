@@ -3,7 +3,7 @@ VRChat SDK3でVRC_Triggerを使いたい人のための代替ツールです。
 VRC_Triggerの機能の大部分を取り込み、VRC_Triggerに近い使用感でワールドギミックを組み立てることができます。  
 VRC_TriggerのUIを次のような3つのUdonで表現して、実現します。  
   
-![Image](https://user-images.githubusercontent.com/44010396/120924864-c563fa80-c710-11eb-89d4-8d8d40c278b4.png)  
+![Image](https://user-images.githubusercontent.com/44010396/121017422-391d0a80-c7d8-11eb-8a7f-6f354a823137.png)  
   
 ## ダウンロード
   
