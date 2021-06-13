@@ -7,6 +7,7 @@ using VRC.Udon.Common.Interfaces;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
+using UdonSharpEditor;
 #endif
 
 public class T23_OnInteract : UdonSharpBehaviour
@@ -54,12 +55,15 @@ public class T23_OnInteract : UdonSharpBehaviour
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            if (master)
+            EditorGUI.BeginChangeCheck();
+            UdonSharpProgramAsset programAsset = UdonSharpEditorUtility.GetUdonSharpProgramAsset((UdonSharpBehaviour)target);
+            UdonSharpGUI.DrawInteractSettings(target);
+            if (EditorGUI.EndChangeCheck())
             {
-                EditorGUI.BeginChangeCheck();
-                master.interactText = EditorGUILayout.TextField("Interact Text", master.interactText);
-                if (EditorGUI.EndChangeCheck())
+                if (master)
                 {
+                    UdonBehaviour behaviour = UdonSharpEditorUtility.GetBackingUdonBehaviour((UdonSharpBehaviour)target);
+                    master.interactText = behaviour.interactText;
                     master.OrderComponents(false);
                 }
             }
