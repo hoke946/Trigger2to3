@@ -19,9 +19,6 @@ public class T23_InputJump : UdonSharpBehaviour
     [SerializeField]
     private bool inputValue = true;
 
-    [SerializeField, Range(0, 128)]
-    private int number;
-
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
