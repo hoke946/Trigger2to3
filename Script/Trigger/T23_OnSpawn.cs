@@ -17,9 +17,6 @@ public class T23_OnSpawn : UdonSharpBehaviour
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
-    private bool onSpawned = false;
-    private bool firstFlame = true;
-
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_OnSpawn))]
     internal class T23_OnSpawnEditor : Editor
@@ -85,28 +82,11 @@ public class T23_OnSpawn : UdonSharpBehaviour
                 }
             }
         }
-
-        onSpawned = true;
     }
 
     public override void OnSpawn()
     {
-        onSpawned = true;
-    }
-
-    void Update()
-    {
-        if (firstFlame)
-        {
-            firstFlame = false;
-            return;
-        }
-
-        if (onSpawned)
-        {
-            Trigger();
-            onSpawned = false;
-        }
+        Trigger();
     }
 
     private void Trigger()

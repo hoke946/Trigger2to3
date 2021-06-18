@@ -15,7 +15,7 @@ public class T23_OnPlayerRespawn : UdonSharpBehaviour
     public const bool isTrigger = true;
 
     [SerializeField]
-    private bool local;
+    private bool localOnly;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
@@ -56,7 +56,7 @@ public class T23_OnPlayerRespawn : UdonSharpBehaviour
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.local = EditorGUILayout.Toggle("Local", body.local);
+            body.localOnly = EditorGUILayout.Toggle("Local Only", body.localOnly);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -91,7 +91,7 @@ public class T23_OnPlayerRespawn : UdonSharpBehaviour
 
     public override void OnPlayerRespawn(VRCPlayerApi player)
     {
-        if (!local || player == Networking.LocalPlayer)
+        if (!localOnly || player == Networking.LocalPlayer)
         {
             Trigger();
         }

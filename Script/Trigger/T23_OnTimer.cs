@@ -124,6 +124,7 @@ public class T23_OnTimer : UdonSharpBehaviour
             else
             {
                 finished = true;
+                this.enabled = false;
             }
         }
     }
@@ -131,6 +132,7 @@ public class T23_OnTimer : UdonSharpBehaviour
     private void ResetTime()
     {
         finished = false;
+        this.enabled = true;
         timer = 0;
         if (highPeriodTime > lowPeriodTime)
         {
