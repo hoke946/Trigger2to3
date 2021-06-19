@@ -72,7 +72,6 @@ public class T23_Master : MonoBehaviour
         }
         components = newComponents;
 
-        /*
         var objSync = GetComponent<VRC.SDK3.Components.VRCObjectSync>();
         if (objSync)
         {
@@ -92,7 +91,6 @@ public class T23_Master : MonoBehaviour
                 modified = true;
             }
         }
-        */
 
         if (modified)
         {

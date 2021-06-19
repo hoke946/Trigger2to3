@@ -3,6 +3,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common.Interfaces;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
@@ -21,6 +22,7 @@ public class T23_OnNetworkReady : UdonSharpBehaviour
     private bool syncReady;
 
     private bool synced = false;
+    private int firstSyncRequests = 0;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_OnNetworkReady))]
@@ -93,6 +95,22 @@ public class T23_OnNetworkReady : UdonSharpBehaviour
             syncReady = true;
             RequestSerialization();
         }
+        else
+        {
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(RequestFirstSync));
+        }
+    }
+
+    public void RequestFirstSync()
+    {
+        firstSyncRequests++;
+        ActivitySwitching();
+    }
+
+    public void ResponceFirstSynced()
+    {
+        firstSyncRequests--;
+        ActivitySwitching();
     }
 
     void Update()
@@ -103,6 +121,8 @@ public class T23_OnNetworkReady : UdonSharpBehaviour
             synced = true;
             this.enabled = false;
         }
+
+        ActivitySwitching();
     }
 
     private void Trigger()
@@ -114,6 +134,18 @@ public class T23_OnNetworkReady : UdonSharpBehaviour
         else if (broadcastGlobal)
         {
             broadcastGlobal.Trigger();
+        }
+    }
+
+    private void ActivitySwitching()
+    {
+        if (!synced || firstSyncRequests > 0)
+        {
+            this.enabled = true;
+        }
+        else
+        {
+            this.enabled = false;
         }
     }
 }

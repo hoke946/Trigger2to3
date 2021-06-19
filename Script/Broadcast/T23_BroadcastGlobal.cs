@@ -44,10 +44,12 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private int bufferTimes;
 
     private bool synced = false;
+    private bool synced2 = false;
     private bool fired = false;
     private float timer = 0;
     private int actionCount = 0;
     private int cbOwnerTrigger = 0;
+    private int firstSyncRequests = 0;
     private int actionIndex = 0;
 
     [HideInInspector]
@@ -144,11 +146,27 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             syncReady = true;
             RequestSerialization();
         }
+        else
+        {
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(RequestFirstSync));
+        }
 
         if (commonBuffer)
         {
             commonBuffer.LinkBroadcast(this);
         }
+    }
+
+    public void RequestFirstSync()
+    {
+        firstSyncRequests++;
+        ActivitySwitching();
+    }
+
+    public void ResponceFirstSynced()
+    {
+        firstSyncRequests--;
+        ActivitySwitching();
     }
 
     public void Trigger()
@@ -157,12 +175,14 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         if (useablePlayer == 2 && !Networking.IsOwner(gameObject)) { return; }
 
         fired = true;
-        this.enabled = true;
+        ActivitySwitching();
         timer = 0;
     }
 
     void Update()
     {
+        if (synced) { synced2 = true; }
+
         if (!synced && syncReady)
         {
             if (!commonBuffer)
@@ -195,17 +215,18 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 commonBuffer.EntryBuffer(this, bufferType);
             }
             cbOwnerTrigger--;
-            if (cbOwnerTrigger == 0)
-            {
-                this.enabled = false;
-            }
         }
+
+        ActivitySwitching();
     }
 
     public void SetSynced()
     {
         synced = true;
-        this.enabled = false;
+        if (!Networking.IsOwner(gameObject))
+        {
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(ResponceFirstSynced));
+        }
     }
 
     private void SendNetworkFire()
@@ -213,7 +234,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         if (actions == null)
         {
             fired = false;
-            this.enabled = false;
             return;
         }
 
@@ -227,18 +247,17 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 #endif
 
         fired = false;
-        this.enabled = false;
         return;
     }
 
     public void Fire()
     {
-        if (!synced) { return; }
+        if (!synced2) { return; }   // 初期同期直後は待ちタスクが流れてくる場合があるので１フレーム待つ
         UnconditionalFire();
     }
 
     public void UnconditionalFire()
-    { 
+    {
         actionCount++;
         if (randomize && randomTotal > 0)
         {
@@ -388,19 +407,23 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, commonBuffer.gameObject);
             cbOwnerTrigger++;
-            this.enabled = true;
+            ActivitySwitching();
         }
         else
         {
             if (bufferType == 1)
             {
-                bufferTimes = 1;
+                if (bufferTimes == 0)
+                {
+                    bufferTimes = 1;
+                    SendSyncAll();
+                }
             }
             else if (bufferType == 2)
             {
                 bufferTimes++;
+                SendSyncAll();
             }
-            RequestSerialization();
         }
     }
 
@@ -464,5 +487,28 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     public bool IsSyncReady()
     {
         return syncReady;
+    }
+
+    private void ActivitySwitching()
+    {
+        if (!synced2 || fired || cbOwnerTrigger > 0 || firstSyncRequests > 0)
+        {
+            this.enabled = true;
+        }
+        else
+        {
+            this.enabled = false;
+        }
+    }
+
+    private void SendSyncAll()
+    {
+        RequestSerialization();
+        SendCustomNetworkEvent(NetworkEventTarget.All, nameof(RecieveSyncAll));
+    }
+
+    public void RecieveSyncAll()
+    {
+        this.enabled = true;
     }
 }

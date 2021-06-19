@@ -3,9 +3,10 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common.Interfaces;
 
-//[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-[UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
+[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+//[UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
 public class T23_CommonBuffer : UdonSharpBehaviour
 {
     private T23_BroadcastGlobal[] broadcasts;
@@ -17,6 +18,9 @@ public class T23_CommonBuffer : UdonSharpBehaviour
     private string broadcastIdxChars;
 
     private bool synced = false;
+    private int firstSyncRequests = 0;
+
+    public UnityEngine.UI.Text monitor;
 
     void Start()
     {
@@ -25,6 +29,22 @@ public class T23_CommonBuffer : UdonSharpBehaviour
             syncReady = true;
             RequestSerialization();
         }
+        else
+        {
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(RequestFirstSync));
+        }
+    }
+
+    public void RequestFirstSync()
+    {
+        firstSyncRequests++;
+        ActivitySwitching();
+    }
+
+    public void ResponceFirstSynced()
+    {
+        firstSyncRequests--;
+        ActivitySwitching();
     }
 
     void Update()
@@ -56,7 +76,14 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                 broadcast.SetSynced();
             }
             synced = true;
+            if (!Networking.IsOwner(gameObject))
+            {
+                SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(ResponceFirstSynced));
+            }
+            Display();
         }
+
+        ActivitySwitching();
     }
 
     public void LinkBroadcast(T23_BroadcastGlobal broadcast)
@@ -92,7 +119,23 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                 broadcastIdxChars += ((char)bidx).ToString();
             }
         }
-        RequestSerialization();
+        SendSyncAll();
+        SendCustomNetworkEvent(NetworkEventTarget.All, nameof(Display));
+    }
+
+    public void Display()
+    {
+        if (monitor)
+        {
+            int[] broadcastIdx = CharsToIntArray(broadcastIdxChars);
+            string text = "T:";
+            for (int i = 0; i < broadcastIdx.Length; i++)
+            {
+                text += broadcastIdx[i].ToString();
+            }
+            text += " " + Time.deltaTime.ToString();
+            monitor.text = text;
+        }
     }
 
     private int[] CharsToIntArray(string charsStr)
@@ -122,5 +165,28 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         array.CopyTo(new_array, 0);
         new_array[new_array.Length - 1] = value;
         return new_array;
+    }
+
+    private void ActivitySwitching()
+    {
+        if (!synced || firstSyncRequests > 0)
+        {
+            this.enabled = true;
+        }
+        else
+        {
+            this.enabled = false;
+        }
+    }
+
+    private void SendSyncAll()
+    {
+        RequestSerialization();
+        SendCustomNetworkEvent(NetworkEventTarget.All, nameof(RecieveSyncAll));
+    }
+
+    public void RecieveSyncAll()
+    {
+        this.enabled = true;
     }
 }

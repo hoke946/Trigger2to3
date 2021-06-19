@@ -115,16 +115,18 @@ internal class T23_MasterEditor : Editor
 
         GUILayout.Space(10);
 
-        EditorGUILayout.HelpBox("現在、Manual Sync は未対応。 Synchronize Method は Continuous に設定されます。", MessageType.Info);
-        /*
+        EditorGUI.BeginChangeCheck();
         EditorGUI.BeginDisabledGroup(master.hasObjectSync);
         master.reliable = EditorGUILayout.Toggle("SyncMethod Manual", master.reliable);
         EditorGUI.EndDisabledGroup();
+        if (EditorGUI.EndChangeCheck())
+        {
+            master.OrderComponents(false);
+        }
         if (master.hasObjectSync)
         {
             EditorGUILayout.HelpBox("VRC_ObjectSync が存在するため、Synchronize Method は Continuous に設定されています。", MessageType.Info);
         }
-        */
 
         serializedObject.ApplyModifiedProperties();
 
