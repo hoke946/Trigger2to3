@@ -24,14 +24,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
     private string method;
 
     [SerializeField]
-    private bool network;
-
-    [SerializeField]
-    private NetworkEventTarget target;
-
-    [SerializeField]
-    [Tooltip("if local")]
-    private bool takeOwnership;
+    private int ownershipControl;
 
     private bool executing = false;
     private bool executed;
@@ -52,6 +45,13 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
     {
         T23_CallUdonMethod body;
         T23_Master master;
+
+        public enum OwnershipControl
+        {
+            None = 0,
+            SendOwner = 1,
+            TakeOwnership = 2
+        }
 
         private ReorderableList recieverReorderableList;
 
@@ -87,11 +87,10 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
+            body.udonBehaviour = (UdonBehaviour)EditorGUILayout.ObjectField("UdonBehaviour", body.udonBehaviour, typeof(UdonBehaviour), true);
             body.method = EditorGUILayout.TextField("Method", body.method);
-            body.network = EditorGUILayout.Toggle("Network", body.network);
-            body.target = (NetworkEventTarget)EditorGUILayout.EnumPopup("Target", body.target);
 
-            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
+            body.ownershipControl = System.Convert.ToInt32(EditorGUILayout.EnumPopup("Ownership Control", (OwnershipControl)body.ownershipControl));
             body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
 
             serializedObject.ApplyModifiedProperties();
@@ -149,7 +148,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
 
 #if UNITY_EDITOR
         // local simulation
-        takeOwnership = false;
+        ownershipControl = 0;
 #endif
 
         this.enabled = false;
@@ -198,40 +197,36 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
             return;
         }
 
-        if (network)
+        if (ownershipControl == 2)
         {
-#if UNITY_EDITOR
-            // local simulation
-            udonBehaviour.SendCustomEvent(method);
-#else
-            udonBehaviour.SendCustomNetworkEvent(target, method);
-#endif
+            Networking.SetOwner(Networking.LocalPlayer, udonBehaviour.gameObject);
+            executing = true;
+            this.enabled = true;
+            executed = false;
+            waitTimer = 0;
         }
         else
         {
-            if (takeOwnership)
-            {
-                Networking.SetOwner(Networking.LocalPlayer, udonBehaviour.gameObject);
-                executing = true;
-                this.enabled = true;
-                executed = false;
-                waitTimer = 0;
-            }
-            else
-            {
-                Execute();
-            }
-        }
-
-        if (!takeOwnership)
-        {
+            Execute();
             Finish();
         }
     }
 
     private void Execute()
     {
-        udonBehaviour.SendCustomEvent(method);
+        if (ownershipControl == 1)
+        {
+#if UNITY_EDITOR
+            // local simulation
+            udonBehaviour.SendCustomEvent(method);
+#else
+            udonBehaviour.SendCustomNetworkEvent(NetworkEventTarget.Owner, method);
+#endif
+        }
+        else
+        {
+            udonBehaviour.SendCustomEvent(method);
+        }
     }
 
     private bool RandomJudgement()
