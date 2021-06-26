@@ -11,7 +11,7 @@ using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-public class T23_SpawnObjectPool : UdonSharpBehaviour
+public class T23_ShuffleObjectPool : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
@@ -35,17 +35,17 @@ public class T23_SpawnObjectPool : UdonSharpBehaviour
     private T23_BroadcastGlobal broadcastGlobal;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_SpawnObjectPool))]
-    internal class T23_SpawnObjectPoolEditor : Editor
+    [CustomEditor(typeof(T23_ShuffleObjectPool))]
+    internal class T23_ShuffleObjectPoolEditor : Editor
     {
-        T23_SpawnObjectPool body;
+        T23_ShuffleObjectPool body;
         T23_Master master;
 
         private ReorderableList recieverReorderableList;
 
         void OnEnable()
         {
-            body = target as T23_SpawnObjectPool;
+            body = target as T23_ShuffleObjectPool;
 
             master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
         }
@@ -187,7 +187,7 @@ public class T23_SpawnObjectPool : UdonSharpBehaviour
 
     private void Execute()
     {
-        GameObject obj = objectPool.TryToSpawn();
+        objectPool.Shuffle();
 
         Finish();
     }

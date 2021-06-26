@@ -11,7 +11,7 @@ using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-public class T23_SpawnObjectPool : UdonSharpBehaviour
+public class T23_ReturnObjectPool : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
@@ -35,19 +35,33 @@ public class T23_SpawnObjectPool : UdonSharpBehaviour
     private T23_BroadcastGlobal broadcastGlobal;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_SpawnObjectPool))]
-    internal class T23_SpawnObjectPoolEditor : Editor
+    [CustomEditor(typeof(T23_ReturnObjectPool))]
+    internal class T23_ReturnObjectPoolEditor : Editor
     {
-        T23_SpawnObjectPool body;
+        T23_ReturnObjectPool body;
         T23_Master master;
 
         private ReorderableList recieverReorderableList;
 
         void OnEnable()
         {
-            body = target as T23_SpawnObjectPool;
+            body = target as T23_ReturnObjectPool;
 
             master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
+            if (body.objectPool == null)
+            {
+                var objectPools = FindObjectsOfType<VRCObjectPool>();
+                foreach (var objectPool in objectPools)
+                {
+                    for (int i = 0; i < objectPool.Pool.Length; i++)
+                    {
+                        if (objectPool.Pool[i] == body.gameObject)
+                        {
+                            body.objectPool = objectPool;
+                        }
+                    }
+                }
+            }
         }
 
         public override void OnInspectorGUI()
@@ -187,7 +201,7 @@ public class T23_SpawnObjectPool : UdonSharpBehaviour
 
     private void Execute()
     {
-        GameObject obj = objectPool.TryToSpawn();
+        objectPool.Return(gameObject);
 
         Finish();
     }
