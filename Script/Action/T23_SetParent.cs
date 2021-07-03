@@ -98,6 +98,7 @@ public class T23_SetParent : UdonSharpBehaviour
             recieverReorderableList.DoLayoutList();
 
             body.parent = (GameObject)EditorGUILayout.ObjectField("Parent", body.parent, typeof(GameObject), true);
+            body.worldPositionStays = EditorGUILayout.Toggle("World Position Stays", body.worldPositionStays);
 
             body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
             body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
