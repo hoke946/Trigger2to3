@@ -14,6 +14,9 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
+    [SerializeField]
+    private bool excludeLocal;
+
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
@@ -56,6 +59,8 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
+            body.excludeLocal = EditorGUILayout.Toggle("Exclude Local", body.excludeLocal);
+
             serializedObject.ApplyModifiedProperties();
         }
     }
@@ -91,6 +96,8 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
 
     public override void OnPlayerJoined(VRCPlayerApi player)
     {
+        if (excludeLocal && player == Networking.LocalPlayer) { return; }
+
         onJoined = true;
     }
 
