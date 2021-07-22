@@ -281,124 +281,137 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         }
     }
 
+    private T23_BroadcastGlobal GetCorrectBroadcast(int id)
+    {
+        var bgs = GetComponents<T23_BroadcastGlobal>();
+        foreach (var bg in bgs)
+        {
+            if (bg.groupID == id)
+            {
+                return bg;
+            }
+        }
+        return null;
+    }
+
     public void RecieveNetworkFire0()
     {
-        if (groupID != 0) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(0);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire1()
     {
-        if (groupID != 1) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(1);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire2()
     {
-        if (groupID != 2) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(2);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire3()
     {
-        if (groupID != 3) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(3);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire4()
     {
-        if (groupID != 4) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(4);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire5()
     {
-        if (groupID != 5) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(5);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire6()
     {
-        if (groupID != 6) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(6);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire7()
     {
-        if (groupID != 7) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(7);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire8()
     {
-        if (groupID != 8) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(8);
+        if (bg) { bg.Fire(); }
     }
 
     public void RecieveNetworkFire9()
     {
-        if (groupID != 9) { return; }
-        Fire();
+        var bg = GetCorrectBroadcast(9);
+        if (bg) { bg.Fire(); }
     }
 
     public void OwnerProcess0()
     {
-        if (groupID != 0) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(0);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess1()
     {
-        if (groupID != 1) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(1);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess2()
     {
-        if (groupID != 2) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(2);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess3()
     {
-        if (groupID != 3) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(3);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess4()
     {
-        if (groupID != 4) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(4);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess5()
     {
-        if (groupID != 5) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(5);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess6()
     {
-        if (groupID != 6) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(6);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess7()
     {
-        if (groupID != 7) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(7);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess8()
     {
-        if (groupID != 8) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(8);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess9()
     {
-        if (groupID != 9) { return; }
-        OwnerProcess();
+        var bg = GetCorrectBroadcast(9);
+        if (bg) { bg.OwnerProcess(); }
     }
 
     public void OwnerProcess()
