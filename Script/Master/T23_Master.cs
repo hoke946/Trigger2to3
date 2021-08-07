@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using UnityEngine;
-using UnityEditor;
 using UnityEditorInternal;
 using UdonSharp;
 using UdonSharpEditor;
@@ -33,7 +32,6 @@ public class T23_Master : MonoBehaviour
     public string interactText = "Use";
     public Component[] components = new Component[0];
     public bool hasObjectSync = true;
-    //public bool reliable = true;
     public bool reliable = false;
 
     public int turn = 0;

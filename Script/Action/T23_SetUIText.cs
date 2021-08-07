@@ -46,6 +46,8 @@ public class T23_SetUIText : UdonSharpBehaviour
         T23_SetUIText body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         private ReorderableList recieverReorderableList;
 
         void OnEnable()
@@ -59,9 +61,9 @@ public class T23_SetUIText : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -70,7 +72,7 @@ public class T23_SetUIText : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -95,10 +97,12 @@ public class T23_SetUIText : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            body.text = EditorGUILayout.TextField("Text", body.text);
-
-            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("text");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("takeOwnership");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

@@ -42,9 +42,9 @@ public class T23_OnNetworkReady : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 1))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 1);
+                return;
             }
 
             serializedObject.Update();
@@ -53,7 +53,7 @@ public class T23_OnNetworkReady : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {

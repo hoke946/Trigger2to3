@@ -20,8 +20,6 @@ public class T23_CommonBuffer : UdonSharpBehaviour
     private bool synced = false;
     private int firstSyncRequests = 0;
 
-    public UnityEngine.UI.Text monitor;
-
     void Start()
     {
         if (Networking.IsOwner(gameObject))
@@ -80,7 +78,6 @@ public class T23_CommonBuffer : UdonSharpBehaviour
             {
                 SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(ResponceFirstSynced));
             }
-            Display();
         }
 
         ActivitySwitching();
@@ -121,21 +118,6 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         }
         SendSyncAll();
         SendCustomNetworkEvent(NetworkEventTarget.All, nameof(Display));
-    }
-
-    public void Display()
-    {
-        if (monitor)
-        {
-            int[] broadcastIdx = CharsToIntArray(broadcastIdxChars);
-            string text = "T:";
-            for (int i = 0; i < broadcastIdx.Length; i++)
-            {
-                text += broadcastIdx[i].ToString();
-            }
-            text += " " + Time.deltaTime.ToString();
-            monitor.text = text;
-        }
     }
 
     private int[] CharsToIntArray(string charsStr)

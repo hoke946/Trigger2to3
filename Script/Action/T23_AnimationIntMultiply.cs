@@ -48,6 +48,8 @@ public class T23_AnimationIntMultiply : UdonSharpBehaviour
         T23_AnimationIntMultiply body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         private ReorderableList recieverReorderableList;
 
         void OnEnable()
@@ -61,9 +63,9 @@ public class T23_AnimationIntMultiply : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -72,7 +74,7 @@ public class T23_AnimationIntMultiply : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -97,11 +99,14 @@ public class T23_AnimationIntMultiply : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            body.variable = EditorGUILayout.TextField("Variable", body.variable);
-            body.operation = EditorGUILayout.IntField("Operation", body.operation);
-
-            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("variable");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("operation");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("takeOwnership");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

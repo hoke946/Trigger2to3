@@ -46,6 +46,8 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
         T23_CallUdonMethod body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         public enum OwnershipControl
         {
             None = 0,
@@ -66,9 +68,9 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -77,7 +79,7 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -87,11 +89,14 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            body.udonBehaviour = (UdonBehaviour)EditorGUILayout.ObjectField("UdonBehaviour", body.udonBehaviour, typeof(UdonBehaviour), true);
-            body.method = EditorGUILayout.TextField("Method", body.method);
-
-            body.ownershipControl = System.Convert.ToInt32(EditorGUILayout.EnumPopup("Ownership Control", (OwnershipControl)body.ownershipControl));
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("udonBehaviour");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("method");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("ownershipControl");
+            prop.intValue = System.Convert.ToInt32(EditorGUILayout.EnumPopup("Ownership Control", (OwnershipControl)body.ownershipControl));
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

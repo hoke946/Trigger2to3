@@ -52,6 +52,8 @@ public class T23_AnimationBool : UdonSharpBehaviour
         T23_AnimationBool body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         private ReorderableList recieverReorderableList;
 
         public enum ToggleOperation
@@ -73,9 +75,9 @@ public class T23_AnimationBool : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -84,7 +86,7 @@ public class T23_AnimationBool : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -109,7 +111,8 @@ public class T23_AnimationBool : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            body.variable = EditorGUILayout.TextField("Variable", body.variable);
+            prop = serializedObject.FindProperty("variable");
+            EditorGUILayout.PropertyField(prop);
 
             EditorGUI.BeginChangeCheck();
             operation = (ToggleOperation)EditorGUILayout.EnumPopup("Operation", GetOperation());
@@ -118,8 +121,10 @@ public class T23_AnimationBool : UdonSharpBehaviour
                 SelectOperation();
             }
 
-            body.takeOwnership = EditorGUILayout.Toggle("Take Ownership", body.takeOwnership);
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("takeOwnership");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -129,15 +134,20 @@ public class T23_AnimationBool : UdonSharpBehaviour
             switch (operation)
             {
                 case ToggleOperation.True:
-                    body.toggle = false;
-                    body.operation = true;
+                    prop = serializedObject.FindProperty("toggle");
+                    prop.boolValue = false;
+                    prop = serializedObject.FindProperty("operation");
+                    prop.boolValue = true;
                     break;
                 case ToggleOperation.False:
-                    body.toggle = false;
-                    body.operation = false;
+                    prop = serializedObject.FindProperty("toggle");
+                    prop.boolValue = false;
+                    prop = serializedObject.FindProperty("operation");
+                    prop.boolValue = false;
                     break;
                 case ToggleOperation.Toggle:
-                    body.toggle = true;
+                    prop = serializedObject.FindProperty("toggle");
+                    prop.boolValue = true;
                     break;
             }
         }

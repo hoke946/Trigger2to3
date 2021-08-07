@@ -35,6 +35,8 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
         T23_SetPlayerVelocity body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_SetPlayerVelocity;
@@ -46,9 +48,9 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -57,7 +59,7 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -67,9 +69,10 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            body.velocity = EditorGUILayout.Vector3Field("Velocity", body.velocity);
-
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("velocity");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

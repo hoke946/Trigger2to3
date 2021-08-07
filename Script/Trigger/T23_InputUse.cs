@@ -29,6 +29,8 @@ public class T23_InputUse : UdonSharpBehaviour
         T23_InputUse body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         enum InputValue
         {
             Down = 1,
@@ -46,9 +48,9 @@ public class T23_InputUse : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 1))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 1);
+                return;
             }
 
             serializedObject.Update();
@@ -57,14 +59,15 @@ public class T23_InputUse : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.inputValue = (InputValue)EditorGUILayout.EnumPopup("Value", (InputValue)System.Convert.ToInt32(body.inputValue)) == InputValue.Down;
+            prop = serializedObject.FindProperty("inputValue");
+            prop.boolValue = (InputValue)EditorGUILayout.EnumPopup("Value", (InputValue)System.Convert.ToInt32(body.inputValue)) == InputValue.Down;
 
             serializedObject.ApplyModifiedProperties();
         }

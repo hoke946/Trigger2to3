@@ -41,6 +41,8 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
         T23_TeleportPlayer body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_TeleportPlayer;
@@ -52,9 +54,9 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -63,7 +65,7 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -73,11 +75,14 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            body.teleportLocation = (Transform)EditorGUILayout.ObjectField("Teleport Location", body.teleportLocation, typeof(Transform), true);
-            body.teleportOrientation = (VRC_SceneDescriptor.SpawnOrientation)EditorGUILayout.EnumPopup("Teleport Orientation", body.teleportOrientation);
-            body.lerpOnRemote = EditorGUILayout.Toggle("Lerp on Remote", body.lerpOnRemote);
-
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("teleportLocation");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("teleportOrientation");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("lerpOnRemote");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

@@ -40,6 +40,8 @@ public class T23_OnTimer : UdonSharpBehaviour
         T23_OnTimer body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_OnTimer;
@@ -51,9 +53,9 @@ public class T23_OnTimer : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 1))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 1);
+                return;
             }
 
             serializedObject.Update();
@@ -62,17 +64,21 @@ public class T23_OnTimer : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.repeat = EditorGUILayout.Toggle("Repeat", body.repeat);
-            body.resetOnEnable = EditorGUILayout.Toggle("Reset OnEnable", body.resetOnEnable);
-            body.lowPeriodTime = EditorGUILayout.FloatField("Low Period Time", body.lowPeriodTime);
-            body.highPeriodTime = EditorGUILayout.FloatField("High Period Time", body.highPeriodTime);
+            prop = serializedObject.FindProperty("repeat");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("resetOnEnable");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("lowPeriodTime");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("highPeriodTime");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

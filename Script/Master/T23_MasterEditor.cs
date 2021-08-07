@@ -33,7 +33,7 @@ internal class T23_MasterEditor : Editor
 
         T23_EditorUtility.ShowTitle("Master");
 
-        GUILayout.Box("Group #" + master.groupID.ToString(), new GUIStyle() { fontSize = 20, alignment = TextAnchor.MiddleCenter });
+        GUILayout.Box("Group #" + master.groupID.ToString(), T23_EditorUtility.HeadlineStyle(true));
 
         GUILayout.Space(10);
 
@@ -117,11 +117,13 @@ internal class T23_MasterEditor : Editor
 
         EditorGUI.BeginChangeCheck();
         EditorGUI.BeginDisabledGroup(master.hasObjectSync);
-        master.reliable = EditorGUILayout.Toggle("SyncMethod Manual", master.reliable);
+        serializedObject.FindProperty("reliable").boolValue = EditorGUILayout.Toggle("SyncMethod Manual", master.reliable);
         EditorGUI.EndDisabledGroup();
         if (EditorGUI.EndChangeCheck())
         {
+            serializedObject.ApplyModifiedProperties();
             master.OrderComponents(false);
+            serializedObject.Update();
         }
         if (master.hasObjectSync)
         {

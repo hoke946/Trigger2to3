@@ -33,6 +33,8 @@ public class T23_OnEnterTrigger : UdonSharpBehaviour
         T23_OnEnterTrigger body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_OnEnterTrigger;
@@ -44,9 +46,9 @@ public class T23_OnEnterTrigger : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 1))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 1);
+                return;
             }
 
             serializedObject.Update();
@@ -55,15 +57,17 @@ public class T23_OnEnterTrigger : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.triggerIndividuals = EditorGUILayout.Toggle("Trigger Individuals", body.triggerIndividuals);
-            body.layers = T23_EditorUtility.LayerMaskField("Layers", body.layers);
+            prop = serializedObject.FindProperty("triggerIndividuals");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("layers");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

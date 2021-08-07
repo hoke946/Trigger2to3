@@ -40,6 +40,8 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
         T23_BroadcastLocal body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_BroadcastLocal;
@@ -51,9 +53,9 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 0))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 0);
+                return;
             }
 
             serializedObject.Update();
@@ -62,15 +64,17 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.delayInSeconds = EditorGUILayout.FloatField("Delay in Seconds", body.delayInSeconds);
-            body.randomize = EditorGUILayout.Toggle("Randomize", body.randomize);
+            prop = serializedObject.FindProperty("delayInSeconds");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomize");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

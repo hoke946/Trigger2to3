@@ -69,6 +69,8 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         T23_BroadcastGlobal body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         public enum UsablePlayer
         {
             Always = 0,
@@ -86,25 +88,17 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         void OnEnable()
         {
             body = target as T23_BroadcastGlobal;
-
+            
             master = T23_Master.GetMaster(body, body.groupID, 0, true, body.title);
-
-            // 恥ずかしいパッチ（次回削除予定）
-            if (body.title.Contains("Grobal"))
-            {
-                body.title = body.title.Replace("Grobal", "Global");
-                master.broadcastTitles[0] = body.title;
-                master.broadcastSet.title = body.title;
-            }
         }
 
         public override void OnInspectorGUI()
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 0))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 0);
+                return;
             }
 
             serializedObject.Update();
@@ -113,7 +107,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {
@@ -125,12 +119,16 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 EditorGUILayout.HelpBox("BroadcastGlobal は Group #0 ～ #9 の間でしか使用できません。", MessageType.Error);
             }
 
-            body.sendTarget = (NetworkEventTarget)EditorGUILayout.EnumPopup("Send Target", body.sendTarget);
-            body.useablePlayer = (int)(UsablePlayer)EditorGUILayout.EnumPopup("Usable Player", (UsablePlayer)body.useablePlayer);
-            body.bufferType = (int)(BufferType)EditorGUILayout.EnumPopup("Buffer Type", (BufferType)body.bufferType);
-            body.delayInSeconds = EditorGUILayout.FloatField("Delay in Seconds", body.delayInSeconds);
-            body.randomize = EditorGUILayout.Toggle("Randomize", body.randomize);
-            body.commonBuffer = (T23_CommonBuffer)EditorGUILayout.ObjectField("Common Buffer", body.commonBuffer, typeof(T23_CommonBuffer), true);
+            prop = serializedObject.FindProperty("sendTarget");
+            EditorGUILayout.PropertyField(prop);
+            serializedObject.FindProperty("useablePlayer").intValue = (int)(UsablePlayer)EditorGUILayout.EnumPopup("Usable Player", (UsablePlayer)body.useablePlayer);
+            serializedObject.FindProperty("bufferType").intValue = (int)(BufferType)EditorGUILayout.EnumPopup("Buffer Type", (BufferType)body.bufferType);
+            prop = serializedObject.FindProperty("delayInSeconds");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomize");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("commonBuffer");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

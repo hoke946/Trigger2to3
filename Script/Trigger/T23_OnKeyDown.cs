@@ -27,6 +27,8 @@ public class T23_OnKeyDown : UdonSharpBehaviour
         T23_OnKeyDown body;
         T23_Master master;
 
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_OnKeyDown;
@@ -38,9 +40,9 @@ public class T23_OnKeyDown : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 1))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 1);
+                return;
             }
 
             serializedObject.Update();
@@ -49,14 +51,15 @@ public class T23_OnKeyDown : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
             }
             else
             {
                 body.groupID = EditorGUILayout.IntField("Group ID", body.groupID);
             }
 
-            body.key = (KeyCode)EditorGUILayout.EnumPopup("Key", body.key);
+            prop = serializedObject.FindProperty("key");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }

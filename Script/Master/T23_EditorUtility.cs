@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using UdonSharp;
+using UdonSharpEditor;
 using System;
 
 public class T23_EditorUtility : Editor
@@ -11,31 +12,44 @@ public class T23_EditorUtility : Editor
     public static void ShowTitle(string title)
     {
         Color backColor = Color.white;
+        Color textColor = Color.white;
         switch (title)
         {
             case "Master":
                 backColor = Color.red;
+                textColor = new Color(0.7f, 0.7f, 0.7f);
                 break;
             case "Broadcast":
                 backColor = Color.green;
+                textColor = new Color(0.5f, 0.5f, 0.5f);
                 break;
             case "Trigger":
                 backColor = Color.yellow;
+                textColor = new Color(0.5f, 0.5f, 0.5f);
                 break;
             case "Action":
                 backColor = Color.cyan;
+                textColor = new Color(0.5f, 0.5f, 0.5f);
                 break;
         }
 
         Color oldBackgroundColor = GUI.backgroundColor;
         GUI.backgroundColor = backColor;
         GUIStyle titleStyle = new GUIStyle(EditorStyles.textField);
-        titleStyle.normal.textColor = Color.white;
+        titleStyle.normal.textColor = textColor;
         titleStyle.fontStyle = FontStyle.BoldAndItalic;
         EditorGUILayout.TextField(">>> Trigger2to3 " + title, titleStyle);
         GUI.backgroundColor = oldBackgroundColor;
     }
 
+    public static GUIStyle HeadlineStyle(bool isMaster = false)
+    {
+        GUIStyle style = new GUIStyle();
+        style.fontSize = isMaster ? 20 : 14;
+        style.alignment = TextAnchor.MiddleCenter;
+        style.normal.textColor = new Color(0.5f, 0.5f, 0);
+        return style;
+    }
 
     public static void ShowSwapButton(T23_Master master, string currentTitle)
     {
@@ -67,13 +81,23 @@ public class T23_EditorUtility : Editor
         EditorGUILayout.EndHorizontal();
     }
 
-    public static void GuideJoinMaster(UdonSharpBehaviour body, int gid, int category)
+    public static bool GuideJoinMaster(T23_Master master, UdonSharpBehaviour body, int gid, int category)
     {
-        EditorGUILayout.HelpBox("Master に組み込まれていません。 このままでも動作しますが、次のボタンで Master に組み込むことができます。", MessageType.Info);
-        if (GUILayout.Button("Join Master"))
+        if (!UdonSharpEditorUtility.IsProxyBehaviour(body))
         {
-            EditorApplication.delayCall += () => T23_Master.JoinMaster(body, gid, category);
+            UdonSharpGUI.DrawConvertToUdonBehaviourButton(body);
+            return false;
         }
+
+        if (master == null)
+        {
+            EditorGUILayout.HelpBox("Master に組み込まれていません。 このままでも動作しますが、次のボタンで Master に組み込むことができます。", MessageType.Info);
+            if (GUILayout.Button("Join Master"))
+            {
+                EditorApplication.delayCall += () => T23_Master.JoinMaster(body, gid, category);
+            }
+        }
+        return true;
     }
 
     public static LayerMask LayerMaskField(string label, LayerMask layerMask)

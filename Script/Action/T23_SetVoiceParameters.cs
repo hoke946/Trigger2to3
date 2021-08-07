@@ -46,7 +46,9 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
     {
         T23_SetVoiceParameters body;
         T23_Master master;
-        
+
+        SerializedProperty prop;
+
         void OnEnable()
         {
             body = target as T23_SetVoiceParameters;
@@ -58,9 +60,9 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
         {
             //base.OnInspectorGUI();
 
-            if (master == null)
+            if (!T23_EditorUtility.GuideJoinMaster(master, body, body.groupID, 2))
             {
-                T23_EditorUtility.GuideJoinMaster(body, body.groupID, 2);
+                return;
             }
 
             serializedObject.Update();
@@ -69,7 +71,7 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
 
             if (master)
             {
-                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, new GUIStyle() { fontSize = 14, alignment = TextAnchor.MiddleCenter });
+                GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
                 T23_EditorUtility.ShowSwapButton(master, body.title);
                 body.priority = master.actionTitles.IndexOf(body.title);
             }
@@ -79,13 +81,18 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            body.distanceFar = EditorGUILayout.FloatField("Distance Far", body.distanceFar);
-            body.distanceNear = EditorGUILayout.FloatField("Distance Near", body.distanceNear);
-            body.gain = EditorGUILayout.FloatField("Gain", body.gain);
-            body.lowpass = EditorGUILayout.Toggle("Lowpass", body.lowpass);
-            body.volumetricRadius = EditorGUILayout.FloatField("Volumetric Radius", body.volumetricRadius);
-
-            body.randomAvg = EditorGUILayout.Slider("Random Avg", body.randomAvg, 0, 1);
+            prop = serializedObject.FindProperty("distanceFar");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("distanceNear");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("gain");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("lowpass");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("volumetricRadius");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("randomAvg");
+            EditorGUILayout.PropertyField(prop);
             
             serializedObject.ApplyModifiedProperties();
         }
