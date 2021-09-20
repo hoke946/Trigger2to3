@@ -22,7 +22,7 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     private UdonSharpBehaviour[] actions;
     private int[] priorities;
 
-    private bool synced = false;
+    //private bool synced = false;
     private bool fired = false;
     private float timer = 0;
     private int actionIndex = 0;

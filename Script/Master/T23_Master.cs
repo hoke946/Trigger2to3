@@ -411,7 +411,7 @@ public class T23_Master : MonoBehaviour
         {
             UdonBehaviour udon = (UdonBehaviour)component;
             udon.interactText = interactText;
-            udon.Reliable = reliable;
+            udon.SyncMethod = reliable ? VRC.SDKBase.Networking.SyncType.Manual : VRC.SDKBase.Networking.SyncType.Continuous;
         }
     }
 

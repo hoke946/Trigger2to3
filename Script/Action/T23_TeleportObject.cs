@@ -25,9 +25,9 @@ public class T23_TeleportObject : UdonSharpBehaviour
     [SerializeField]
     private bool takeOwnership;
 
-    private bool executing = false;
-    private bool[] executed;
-    private float waitTimer;
+    //private bool executing = false;
+    //private bool[] executed;
+    //private float waitTimer;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -228,7 +228,7 @@ public class T23_TeleportObject : UdonSharpBehaviour
             }
         }
     }
-
+    
     public void Action()
     {
         if (!RandomJudgement()) { return; }
