@@ -42,6 +42,8 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     [UdonSynced(UdonSyncMode.None)]
     private int bufferTimes;
+    private int bufferTimes_local;
+    private bool sync_bufferTimes = false;
 
     private bool synced = false;
     private bool synced2 = false;
@@ -146,7 +148,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         }
         else
         {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(RequestFirstSync));
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, "RequestFirstSync" + groupID.ToString());
         }
 
         if (commonBuffer)
@@ -155,15 +157,61 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         }
     }
 
+    public void RequestFirstSync0()
+    {
+        //var bg = GetCorrectBroadcast(0);
+        //if (bg) { bg.RequestFirstSync(); }
+        if (groupID == 0) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync1()
+    {
+        if (groupID == 1) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync2()
+    {
+        if (groupID == 2) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync3()
+    {
+        if (groupID == 3) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync4()
+    {
+        if (groupID == 4) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync5()
+    {
+        if (groupID == 5) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync6()
+    {
+        if (groupID == 6) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync7()
+    {
+        if (groupID == 7) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync8()
+    {
+        if (groupID == 8) { RequestFirstSync(); }
+    }
+
+    public void RequestFirstSync9()
+    {
+        if (groupID == 9) { RequestFirstSync(); }
+    }
+
     public void RequestFirstSync()
     {
         firstSyncRequests++;
-        ActivitySwitching();
-    }
-
-    public void ResponceFirstSynced()
-    {
-        firstSyncRequests--;
         ActivitySwitching();
     }
 
@@ -215,16 +263,82 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             cbOwnerTrigger--;
         }
 
+        if (sync_bufferTimes)
+        {
+            if (bufferTimes_local != bufferTimes)
+            {
+                sync_bufferTimes = false;
+                bufferTimes_local = bufferTimes;
+            }
+        }
+
         ActivitySwitching();
     }
 
     public void SetSynced()
     {
         synced = true;
+        bufferTimes_local = bufferTimes;
         if (!Networking.IsOwner(gameObject))
         {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(ResponceFirstSynced));
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResponceFirstSynced" + groupID.ToString());
         }
+    }
+
+    public void ResponceFirstSynced0()
+    {
+        if (groupID == 0) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced1()
+    {
+        if (groupID == 1) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced2()
+    {
+        if (groupID == 2) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced3()
+    {
+        if (groupID == 3) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced4()
+    {
+        if (groupID == 4) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced5()
+    {
+        if (groupID == 5) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced6()
+    {
+        if (groupID == 6) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced7()
+    {
+        if (groupID == 7) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced8()
+    {
+        if (groupID == 8) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced9()
+    {
+        if (groupID == 9) { ResponceFirstSynced(); }
+    }
+
+    public void ResponceFirstSynced()
+    {
+        firstSyncRequests--;
+        ActivitySwitching();
     }
 
     private void SendNetworkFire()
@@ -279,6 +393,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         }
     }
 
+    /*
     private T23_BroadcastGlobal GetCorrectBroadcast(int id)
     {
         var bgs = GetComponents<T23_BroadcastGlobal>();
@@ -291,125 +406,106 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         }
         return null;
     }
+    */
 
     public void RecieveNetworkFire0()
     {
-        var bg = GetCorrectBroadcast(0);
-        if (bg) { bg.Fire(); }
+        if (groupID == 0) { Fire(); }
     }
 
     public void RecieveNetworkFire1()
     {
-        var bg = GetCorrectBroadcast(1);
-        if (bg) { bg.Fire(); }
+        if (groupID == 1) { Fire(); }
     }
 
     public void RecieveNetworkFire2()
     {
-        var bg = GetCorrectBroadcast(2);
-        if (bg) { bg.Fire(); }
+        if (groupID == 2) { Fire(); }
     }
 
     public void RecieveNetworkFire3()
     {
-        var bg = GetCorrectBroadcast(3);
-        if (bg) { bg.Fire(); }
+        if (groupID == 3) { Fire(); }
     }
 
     public void RecieveNetworkFire4()
     {
-        var bg = GetCorrectBroadcast(4);
-        if (bg) { bg.Fire(); }
+        if (groupID == 4) { Fire(); }
     }
 
     public void RecieveNetworkFire5()
     {
-        var bg = GetCorrectBroadcast(5);
-        if (bg) { bg.Fire(); }
+        if (groupID == 5) { Fire(); }
     }
 
     public void RecieveNetworkFire6()
     {
-        var bg = GetCorrectBroadcast(6);
-        if (bg) { bg.Fire(); }
+        if (groupID == 6) { Fire(); }
     }
 
     public void RecieveNetworkFire7()
     {
-        var bg = GetCorrectBroadcast(7);
-        if (bg) { bg.Fire(); }
+        if (groupID == 7) { Fire(); }
     }
 
     public void RecieveNetworkFire8()
     {
-        var bg = GetCorrectBroadcast(8);
-        if (bg) { bg.Fire(); }
+        if (groupID == 8) { Fire(); }
     }
 
     public void RecieveNetworkFire9()
     {
-        var bg = GetCorrectBroadcast(9);
-        if (bg) { bg.Fire(); }
+        if (groupID == 9) { Fire(); }
     }
 
     public void OwnerProcess0()
     {
-        var bg = GetCorrectBroadcast(0);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 0) { OwnerProcess(); }
     }
 
     public void OwnerProcess1()
     {
-        var bg = GetCorrectBroadcast(1);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 1) { OwnerProcess(); }
     }
 
     public void OwnerProcess2()
     {
-        var bg = GetCorrectBroadcast(2);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 2) { OwnerProcess(); }
     }
 
     public void OwnerProcess3()
     {
-        var bg = GetCorrectBroadcast(3);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 3) { OwnerProcess(); }
     }
 
     public void OwnerProcess4()
     {
-        var bg = GetCorrectBroadcast(4);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 4) { OwnerProcess(); }
     }
 
     public void OwnerProcess5()
     {
-        var bg = GetCorrectBroadcast(5);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 5) { OwnerProcess(); }
     }
 
     public void OwnerProcess6()
     {
-        var bg = GetCorrectBroadcast(6);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 6) { OwnerProcess(); }
     }
 
     public void OwnerProcess7()
     {
-        var bg = GetCorrectBroadcast(7);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 7) { OwnerProcess(); }
     }
 
     public void OwnerProcess8()
     {
-        var bg = GetCorrectBroadcast(8);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 8) { OwnerProcess(); }
     }
 
     public void OwnerProcess9()
     {
-        var bg = GetCorrectBroadcast(9);
-        if (bg) { bg.OwnerProcess(); }
+        if (groupID == 9) { OwnerProcess(); }
     }
 
     public void OwnerProcess()
@@ -502,7 +598,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     private void ActivitySwitching()
     {
-        if (!synced2 || fired || cbOwnerTrigger > 0 || firstSyncRequests > 0)
+        if (!synced2 || fired || cbOwnerTrigger > 0 || firstSyncRequests > 0 || sync_bufferTimes)
         {
             this.enabled = true;
         }
@@ -515,11 +611,63 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private void SendSyncAll()
     {
         RequestSerialization();
+        bufferTimes_local = bufferTimes;
         SendCustomNetworkEvent(NetworkEventTarget.All, nameof(RecieveSyncAll));
+    }
+
+    public void RecieveSyncAll0()
+    {
+        if (groupID == 0) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll1()
+    {
+        if (groupID == 1) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll2()
+    {
+        if (groupID == 2) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll3()
+    {
+        if (groupID == 3) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll4()
+    {
+        if (groupID == 4) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll5()
+    {
+        if (groupID == 5) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll6()
+    {
+        if (groupID == 6) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll7()
+    {
+        if (groupID == 7) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll8()
+    {
+        if (groupID == 8) { RecieveSyncAll(); }
+    }
+
+    public void RecieveSyncAll9()
+    {
+        if (groupID == 9) { RecieveSyncAll(); }
     }
 
     public void RecieveSyncAll()
     {
         this.enabled = true;
+        sync_bufferTimes = true;
     }
 }

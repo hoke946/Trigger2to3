@@ -16,6 +16,8 @@ public class T23_CommonBuffer : UdonSharpBehaviour
 
     [UdonSynced(UdonSyncMode.None)]
     private string broadcastIdxChars;
+    private string broadcastIdxChars_local;
+    private bool sync_broadcastIdxChars = false;
 
     private bool synced = false;
     private int firstSyncRequests = 0;
@@ -49,6 +51,8 @@ public class T23_CommonBuffer : UdonSharpBehaviour
     {
         if (!synced && syncReady)
         {
+            if (broadcasts == null) { return; }
+
             int[] broadcastIdx = CharsToIntArray(broadcastIdxChars);
 
             foreach (var broadcast in broadcasts)
@@ -76,7 +80,17 @@ public class T23_CommonBuffer : UdonSharpBehaviour
             synced = true;
             if (!Networking.IsOwner(gameObject))
             {
+                broadcastIdxChars_local = broadcastIdxChars;
                 SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(ResponceFirstSynced));
+            }
+        }
+
+        if (sync_broadcastIdxChars)
+        {
+            if (broadcastIdxChars_local != broadcastIdxChars)
+            {
+                sync_broadcastIdxChars = false;
+                broadcastIdxChars_local = broadcastIdxChars;
             }
         }
 
@@ -151,7 +165,7 @@ public class T23_CommonBuffer : UdonSharpBehaviour
 
     private void ActivitySwitching()
     {
-        if (!synced || firstSyncRequests > 0)
+        if (!synced || firstSyncRequests > 0 || sync_broadcastIdxChars)
         {
             this.enabled = true;
         }
@@ -164,11 +178,13 @@ public class T23_CommonBuffer : UdonSharpBehaviour
     private void SendSyncAll()
     {
         RequestSerialization();
+        broadcastIdxChars_local = broadcastIdxChars;
         SendCustomNetworkEvent(NetworkEventTarget.All, nameof(RecieveSyncAll));
     }
 
     public void RecieveSyncAll()
     {
         this.enabled = true;
+        sync_broadcastIdxChars = true;
     }
 }
