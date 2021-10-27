@@ -17,6 +17,9 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
     public const bool isAction = true;
 
     [SerializeField]
+    private bool triggeredPlayer = false;
+
+    [SerializeField]
     private float distanceFar = 25;
 
     [SerializeField]
@@ -46,6 +49,13 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
     {
         T23_SetVoiceParameters body;
         T23_Master master;
+
+        public enum TargetPlayer
+        {
+            All = 0,
+            TriggeredPlayer = 1
+        }
+        private TargetPlayer targetPlayer;
 
         SerializedProperty prop;
 
@@ -81,6 +91,9 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
+            prop = serializedObject.FindProperty("triggeredPlayer");
+            prop.boolValue = (TargetPlayer)EditorGUILayout.EnumPopup("Target Player", (TargetPlayer)System.Convert.ToInt32(body.triggeredPlayer)) == TargetPlayer.TriggeredPlayer;
+            if (body.triggeredPlayer) { EditorGUILayout.HelpBox("TriggeredPlayer は、BroadcastLocalでのみ有効です", MessageType.Info); }
             prop = serializedObject.FindProperty("distanceFar");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("distanceNear");
@@ -158,13 +171,31 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
             return;
         }
 
-        Networking.LocalPlayer.SetVoiceDistanceFar(distanceFar);
-        Networking.LocalPlayer.SetVoiceDistanceNear(distanceNear);
-        Networking.LocalPlayer.SetVoiceGain(gain);
-        Networking.LocalPlayer.SetVoiceLowpass(lowpass);
-        Networking.LocalPlayer.SetVoiceVolumetricRadius(volumetricRadius);
+        if (triggeredPlayer && broadcastLocal)
+        {
+            SetParameter(broadcastLocal.triggeredPlayer);
+        }
+        else
+        {
+            VRCPlayerApi[] players = new VRCPlayerApi[VRCPlayerApi.GetPlayerCount()];
+            VRCPlayerApi.GetPlayers(players);
+            foreach (var player in players)
+            {
+                if (player == null) { continue; }
+                SetParameter(player);
+            }
+        }
 
         Finish();
+    }
+
+    private void SetParameter(VRCPlayerApi player)
+    {
+        player.SetVoiceDistanceFar(distanceFar);
+        player.SetVoiceDistanceNear(distanceNear);
+        player.SetVoiceGain(gain);
+        player.SetVoiceLowpass(lowpass);
+        player.SetVoiceVolumetricRadius(volumetricRadius);
     }
 
     private bool RandomJudgement()

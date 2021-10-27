@@ -146,7 +146,7 @@ public class T23_OnExitCollider : UdonSharpBehaviour
     {
         if (enterPlayer == null || enterPlayer != null && enterPlayer != player) { return; }
 
-        Trigger();
+        AnyPlayerTrigger(player);
 
         enterPlayer = null;
     }
@@ -156,6 +156,18 @@ public class T23_OnExitCollider : UdonSharpBehaviour
         if (broadcastLocal)
         {
             broadcastLocal.Trigger();
+        }
+        else if (broadcastGlobal)
+        {
+            broadcastGlobal.Trigger();
+        }
+    }
+
+    private void AnyPlayerTrigger(VRCPlayerApi player)
+    {
+        if (broadcastLocal)
+        {
+            broadcastLocal.AnyPlayerTrigger(player);
         }
         else if (broadcastGlobal)
         {

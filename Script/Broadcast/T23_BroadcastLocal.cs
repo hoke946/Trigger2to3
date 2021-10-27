@@ -28,6 +28,9 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     private int actionIndex = 0;
 
     [HideInInspector]
+    public VRCPlayerApi triggeredPlayer;
+
+    [HideInInspector]
     public float randomTotal;
 
     [HideInInspector]
@@ -87,6 +90,18 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     }
 
     public void Trigger()
+    {
+        triggeredPlayer = Networking.LocalPlayer;
+        Trigger_internal();
+    }
+
+    public void AnyPlayerTrigger(VRCPlayerApi player)
+    {
+        triggeredPlayer = player;
+        Trigger_internal();
+    }
+
+    public void Trigger_internal()
     {
         if (delayInSeconds > 0)
         {
