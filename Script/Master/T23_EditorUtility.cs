@@ -6,6 +6,7 @@ using UnityEditorInternal;
 using UdonSharp;
 using UdonSharpEditor;
 using System;
+using System.IO;
 
 public class T23_EditorUtility : Editor
 {
@@ -132,6 +133,23 @@ public class T23_EditorUtility : Editor
         layerMask.value = mask;
 
         return layerMask;
+    }
+
+    public static Dictionary<string, UdonSharpProgramAsset> GetProgramAssets(string categoryName)
+    {
+        Dictionary<string, UdonSharpProgramAsset> assetList = new Dictionary<string, UdonSharpProgramAsset>();
+        string path = "Assets/Trigger2to3/ProgramAsset/" + categoryName;
+        string[] files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+        List<string> filelist = new List<string>(files);
+        filelist.Sort();
+        foreach (var file in filelist)
+        {
+            if (file.EndsWith(".meta", System.StringComparison.OrdinalIgnoreCase)) { continue; }
+            UdonSharpProgramAsset asset = (UdonSharpProgramAsset)AssetDatabase.LoadAssetAtPath(file, typeof(UdonSharpProgramAsset));
+            string key = asset.GetClass().Name.Replace("T23_", "");
+            assetList.Add(key, asset);
+        }
+        return assetList;
     }
 }
 #endif

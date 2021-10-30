@@ -42,12 +42,24 @@ internal class T23_MasterEditor : Editor
         {
             broadcastReorderableList = new ReorderableList(serializedObject, broadcastProp);
             broadcastReorderableList.draggable = true;
-            broadcastReorderableList.onCanAddCallback += list => false;
             broadcastReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Broadcast");
             broadcastReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
             {
                 rect.height = EditorGUIUtility.singleLineHeight;
                 EditorGUI.LabelField(rect, master.broadcastTitles[index]);
+            };
+            broadcastReorderableList.onAddDropdownCallback = (Rect buttonRect, ReorderableList list) =>
+            {
+                var menu = new GenericMenu();
+                var assetList = T23_EditorUtility.GetProgramAssets("Broadcast");
+                foreach (var pair in assetList)
+                {
+                    menu.AddItem(new GUIContent(pair.Key), false, () =>
+                    {
+                        master.SetBroadcast(pair.Value);
+                    });
+                }
+                menu.DropDown(buttonRect);
             };
             broadcastReorderableList.onChangedCallback = ChangeBroadcast;
         }
@@ -68,12 +80,24 @@ internal class T23_MasterEditor : Editor
         {
             triggerReorderableList = new ReorderableList(serializedObject, triggerProp);
             triggerReorderableList.draggable = true;
-            triggerReorderableList.onCanAddCallback += list => false;
             triggerReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Trigger");
             triggerReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
             {
                 rect.height = EditorGUIUtility.singleLineHeight;
                 EditorGUI.LabelField(rect, master.triggerTitles[index]);
+            };
+            triggerReorderableList.onAddDropdownCallback = (Rect buttonRect, ReorderableList list) =>
+            {
+                var menu = new GenericMenu();
+                var assetList = T23_EditorUtility.GetProgramAssets("Trigger");
+                foreach (var pair in assetList)
+                {
+                    menu.AddItem(new GUIContent(pair.Key), false, () =>
+                    {
+                        master.AddTrigger(pair.Value);
+                    });
+                }
+                menu.DropDown(buttonRect);
             };
             triggerReorderableList.onChangedCallback = ChangeTrigger;
         }
@@ -94,12 +118,24 @@ internal class T23_MasterEditor : Editor
         {
             actionReorderableList = new ReorderableList(serializedObject, actionProp);
             actionReorderableList.draggable = true;
-            actionReorderableList.onCanAddCallback += list => false;
             actionReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Action");
             actionReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
             {
                 rect.height = EditorGUIUtility.singleLineHeight;
                 EditorGUI.LabelField(rect, master.actionTitles[index]);
+            };
+            actionReorderableList.onAddDropdownCallback = (Rect buttonRect, ReorderableList list) =>
+            {
+                var menu = new GenericMenu();
+                var assetList = T23_EditorUtility.GetProgramAssets("Action");
+                foreach (var pair in assetList)
+                {
+                    menu.AddItem(new GUIContent(pair.Key), false, () =>
+                    {
+                        master.AddAction(pair.Value);
+                    });
+                }
+                menu.DropDown(buttonRect);
             };
             actionReorderableList.onChangedCallback = ChangeAction;
         }
