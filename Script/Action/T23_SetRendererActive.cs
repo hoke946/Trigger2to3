@@ -3,13 +3,15 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.SDK3.Components;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
 using UnityEditorInternal;
+using UdonSharpEditor;
 #endif
 
-public class T23_SetUseGravity : UdonSharpBehaviour
+public class T23_SetRendererActive : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
@@ -17,9 +19,13 @@ public class T23_SetUseGravity : UdonSharpBehaviour
     public const bool isAction = true;
 
     [SerializeField]
-    private Rigidbody[] recievers;
+    private Renderer[] recievers;
 
     [SerializeField]
+    private bool toggle;
+
+    [SerializeField]
+    [Tooltip("if not toggle")]
     private bool operation = true;
 
     [SerializeField]
@@ -37,27 +43,29 @@ public class T23_SetUseGravity : UdonSharpBehaviour
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
-
+    
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_SetUseGravity))]
-    internal class T23_SetUseGravityEditor : Editor
+    [CustomEditor(typeof(T23_SetRendererActive))]
+    internal class T23_SetRendererActiveEditor : Editor
     {
-        T23_SetUseGravity body;
+        T23_SetRendererActive body;
         T23_Master master;
 
         SerializedProperty prop;
 
         private ReorderableList recieverReorderableList;
 
-        public enum BoolOperation
+        public enum ToggleOperation
         {
-            True = 1,
-            False = 0
+            True,
+            False,
+            Toggle
         }
+        private ToggleOperation operation;
 
         void OnEnable()
         {
-            body = target as T23_SetUseGravity;
+            body = target as T23_SetRendererActive;
 
             master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
         }
@@ -74,6 +82,9 @@ public class T23_SetUseGravity : UdonSharpBehaviour
             serializedObject.Update();
 
             T23_EditorUtility.ShowTitle("Action");
+
+            UdonSharpProgramAsset programAsset = UdonSharpEditorUtility.GetUdonSharpProgramAsset((UdonSharpBehaviour)target);
+            UdonSharpGUI.DrawCompileErrorTextArea(programAsset);
 
             if (master)
             {
@@ -97,13 +108,17 @@ public class T23_SetUseGravity : UdonSharpBehaviour
                 recieverReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
                 {
                     rect.height = EditorGUIUtility.singleLineHeight;
-                    body.recievers[index] = (Rigidbody)EditorGUI.ObjectField(rect, body.recievers[index], typeof(Rigidbody), true);
+                    body.recievers[index] = (Renderer)EditorGUI.ObjectField(rect, body.recievers[index], typeof(Renderer), true);
                 };
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("operation");
-            prop.boolValue = (BoolOperation)EditorGUILayout.EnumPopup("Operation", (BoolOperation)System.Convert.ToInt32(body.operation)) == BoolOperation.True;
+            EditorGUI.BeginChangeCheck();
+            operation = (ToggleOperation)EditorGUILayout.EnumPopup("Operation", GetOperation());
+            if (EditorGUI.EndChangeCheck())
+            {
+                SelectOperation();
+            }
 
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
@@ -111,6 +126,48 @@ public class T23_SetUseGravity : UdonSharpBehaviour
             EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void SelectOperation()
+        {
+            switch (operation)
+            {
+                case ToggleOperation.True:
+                    prop = serializedObject.FindProperty("toggle");
+                    prop.boolValue = false;
+                    prop = serializedObject.FindProperty("operation");
+                    prop.boolValue = true;
+                    break;
+                case ToggleOperation.False:
+                    prop = serializedObject.FindProperty("toggle");
+                    prop.boolValue = false;
+                    prop = serializedObject.FindProperty("operation");
+                    prop.boolValue = false;
+                    break;
+                case ToggleOperation.Toggle:
+                    prop = serializedObject.FindProperty("toggle");
+                    prop.boolValue = true;
+                    break;
+            }
+        }
+
+        private ToggleOperation GetOperation()
+        {
+            if (body.toggle)
+            {
+                return ToggleOperation.Toggle;
+            }
+            else
+            {
+                if (body.operation)
+                {
+                    return ToggleOperation.True;
+                }
+                else
+                {
+                    return ToggleOperation.False;
+                }
+            }
         }
     }
 #endif
@@ -245,9 +302,22 @@ public class T23_SetUseGravity : UdonSharpBehaviour
         }
     }
 
-    private void Execute(Rigidbody target)
+    private void Execute(Renderer target)
     {
-        target.useGravity = operation;
+        if (toggle)
+        {
+            if (target)
+            {
+                target.enabled = !target.enabled;
+            }
+        }
+        else
+        {
+            if (target)
+            {
+                target.enabled = operation;
+            }
+        }
     }
 
     private bool RandomJudgement()

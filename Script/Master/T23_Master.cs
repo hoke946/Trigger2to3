@@ -30,6 +30,7 @@ public class T23_Master : MonoBehaviour
     public List<ComponentSet> actionSet = new List<ComponentSet>();
 
     public string interactText = "Use";
+    public float proximity = 2;
     public Component[] components = new Component[0];
     public bool hasObjectSync = true;
     public bool reliable = false;
@@ -411,6 +412,7 @@ public class T23_Master : MonoBehaviour
         {
             UdonBehaviour udon = (UdonBehaviour)component;
             udon.interactText = interactText;
+            udon.proximity = proximity;
             udon.SyncMethod = reliable ? VRC.SDKBase.Networking.SyncType.Manual : VRC.SDKBase.Networking.SyncType.Continuous;
         }
     }
