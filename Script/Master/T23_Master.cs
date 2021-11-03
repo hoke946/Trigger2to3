@@ -280,7 +280,7 @@ public class T23_Master : MonoBehaviour
         Type t23Type = baseComponent.GetType();
         Component newComponent = gameObject.AddComponent(t23Type);
 
-        FieldInfo[] fields = t23Type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+        FieldInfo[] fields = t23Type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         foreach (FieldInfo field in fields)
         {
             field.SetValue(newComponent, field.GetValue(baseComponent));
