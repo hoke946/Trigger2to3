@@ -23,6 +23,9 @@ public class T23_TeleportObject : UdonSharpBehaviour
     private Transform teleportLocation;
 
     [SerializeField]
+    private bool removeVelocity;
+
+    [SerializeField]
     private bool takeOwnership;
 
     //private bool executing = false;
@@ -97,6 +100,8 @@ public class T23_TeleportObject : UdonSharpBehaviour
             recieverReorderableList.DoLayoutList();
 
             prop = serializedObject.FindProperty("teleportLocation");
+            EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("removeVelocity");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
@@ -263,6 +268,16 @@ public class T23_TeleportObject : UdonSharpBehaviour
     {
         target.transform.position = teleportLocation.position;
         target.transform.rotation = teleportLocation.rotation;
+
+        if (removeVelocity)
+        {
+            var rigidBody = target.GetComponent<Rigidbody>();
+            if (rigidBody)
+            {
+                rigidBody.velocity = Vector3.zero;
+                rigidBody.angularVelocity = Vector3.zero;
+            }
+        }
     }
 
     private bool RandomJudgement()

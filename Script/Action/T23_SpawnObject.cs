@@ -77,7 +77,8 @@ public class T23_SpawnObject : UdonSharpBehaviour
 
             EditorGUILayout.HelpBox("SpawnObject は推奨されません。 VRC_ObjectPool の利用を検討してください。SpawnObjectPool で使用できます。", MessageType.Warning);
 
-            body.prefab = (GameObject)EditorGUILayout.ObjectField("Name", body.prefab, typeof(GameObject), false);
+            prop = serializedObject.FindProperty("prefab");
+            EditorGUILayout.PropertyField(prop);
 
             SerializedProperty recieverProp = serializedObject.FindProperty("locations");
             if (recieverReorderableList == null)
