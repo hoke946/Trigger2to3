@@ -5,46 +5,81 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
 
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+using UnityEditor;
+using System.Collections.Generic;
+using UdonSharpEditor;
+#endif
+
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-//[UdonBehaviourSyncMode(BehaviourSyncMode.Continuous)]
 public class T23_CommonBuffer : UdonSharpBehaviour
 {
-    private T23_BroadcastGlobal[] broadcasts;
+    public T23_BroadcastGlobal[] broadcasts;
 
     [UdonSynced(UdonSyncMode.None)]
     private bool syncReady;
 
     [UdonSynced(UdonSyncMode.None)]
-    private string broadcastIdxChars;
-    private string broadcastIdxChars_local;
-    private bool sync_broadcastIdxChars = false;
+    private int[] broadcastIdx = new int[0];
 
     private bool synced = false;
-    private int firstSyncRequests = 0;
+    private int buffering_count = 0;
+    
+    [UdonSynced(UdonSyncMode.None)]
+    private int seed;
+
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+    [CustomEditor(typeof(T23_CommonBuffer))]
+    internal class T23_CommonBufferEditor : Editor
+    {
+        T23_CommonBuffer body;
+
+        SerializedProperty prop;
+
+        void OnEnable()
+        {
+            body = target as T23_CommonBuffer;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            //base.OnInspectorGUI();
+
+            if (!UdonSharpEditorUtility.IsProxyBehaviour(body))
+            {
+                UdonSharpGUI.DrawConvertToUdonBehaviourButton(body);
+                return;
+            }
+
+            serializedObject.Update();
+
+            T23_EditorUtility.ShowTitle("Option");
+            GUILayout.Box("CommonBuffer", T23_EditorUtility.HeadlineStyle());
+
+            UdonSharpProgramAsset programAsset = UdonSharpEditorUtility.GetUdonSharpProgramAsset((UdonSharpBehaviour)target);
+            UdonSharpGUI.DrawCompileErrorTextArea(programAsset);
+
+            if (GUILayout.Button("Set Broadcasts"))
+            {
+                body.broadcasts = T23_EditorUtility.TakeCommonBuffersRelate(body);
+            }
+
+            prop = serializedObject.FindProperty("broadcasts");
+            EditorGUILayout.PropertyField(prop);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
 
     void Start()
     {
         if (Networking.IsOwner(gameObject))
         {
+            seed = Random.Range(0, 1000000000);
             syncReady = true;
             RequestSerialization();
         }
-        else
-        {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(RequestFirstSync));
-        }
-    }
-
-    public void RequestFirstSync()
-    {
-        firstSyncRequests++;
-        ActivitySwitching();
-    }
-
-    public void ResponceFirstSynced()
-    {
-        firstSyncRequests--;
-        ActivitySwitching();
     }
 
     void Update()
@@ -53,15 +88,6 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         {
             if (broadcasts == null) { return; }
 
-            int[] broadcastIdx = CharsToIntArray(broadcastIdxChars);
-
-            foreach (var broadcast in broadcasts)
-            {
-                if (!broadcast.IsSyncReady())
-                {
-                    return;
-                }
-            }
             for (int i = 0; i < broadcastIdx.Length; i++)
             {
                 if (broadcastIdx[i] >= broadcasts.Length)
@@ -69,32 +95,25 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                     return;
                 }
             }
-            for (int i = 0; i < broadcastIdx.Length; i++)
+            if (buffering_count < broadcastIdx.Length)
             {
-                broadcasts[broadcastIdx[i]].UnconditionalFire();
+                var broadcast = broadcasts[broadcastIdx[buffering_count]];
+                if (!broadcast.gameObject.activeSelf)
+                {
+                    broadcast.gameObject.SetActive(true);
+                    return;
+                }
+                broadcast.UnconditionalFire();
+
+                buffering_count++;
+                return;
             }
             foreach (var broadcast in broadcasts)
             {
                 broadcast.SetSynced();
             }
             synced = true;
-            if (!Networking.IsOwner(gameObject))
-            {
-                broadcastIdxChars_local = broadcastIdxChars;
-                SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(ResponceFirstSynced));
-            }
         }
-
-        if (sync_broadcastIdxChars)
-        {
-            if (broadcastIdxChars_local != broadcastIdxChars)
-            {
-                sync_broadcastIdxChars = false;
-                broadcastIdxChars_local = broadcastIdxChars;
-            }
-        }
-
-        ActivitySwitching();
     }
 
     public void LinkBroadcast(T23_BroadcastGlobal broadcast)
@@ -106,7 +125,19 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         }
         else
         {
-            broadcasts = AddBroadcastGlobalArray(broadcasts, broadcast);
+            bool contains = false;
+            for (int i = 0; i < broadcasts.Length; i++)
+            {
+                if (broadcasts[i] == broadcast)
+                {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains)
+            {
+                broadcasts = AddBroadcastGlobalArray(broadcasts, broadcast);
+            }
         }
         if (synced)
         {
@@ -124,14 +155,17 @@ public class T23_CommonBuffer : UdonSharpBehaviour
             {
                 if (bufferType == 1)
                 {
-                    broadcastIdxChars = broadcastIdxChars.Replace(((char)bidx).ToString(), "");
+                    int exist = FindValueIntArray(broadcastIdx, bidx, 0);
+                    if (exist != -1)
+                    {
+                        broadcastIdx = RemoveIntArray(broadcastIdx, exist);
+                    }
                 }
 
-                broadcastIdxChars += ((char)bidx).ToString();
+                broadcastIdx = AddIntArray(broadcastIdx, bidx);
             }
         }
-        SendSyncAll();
-        SendCustomNetworkEvent(NetworkEventTarget.All, nameof(Display));
+        RequestSerialization();
     }
 
     private int[] CharsToIntArray(string charsStr)
@@ -155,6 +189,40 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         return res;
     }
 
+    private int[] AddIntArray(int[] array, int value)
+    {
+        int[] new_array = new int[array.Length + 1];
+        array.CopyTo(new_array, 0);
+        new_array[new_array.Length - 1] = value;
+        return new_array;
+    }
+
+    public int FindValueIntArray(int[] array, int value, int start)
+    {
+        for (int i = start; i < array.Length; i++)
+        {
+            if (array[i] == value)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int[] RemoveIntArray(int[] array, int index)
+    {
+        int[] new_array = new int[array.Length - 1];
+        for (int i = 0; i < index; i++)
+        {
+            new_array[i] = array[i];
+        }
+        for (int i = index; i < new_array.Length; i++)
+        {
+            new_array[i] = array[i + 1];
+        }
+        return new_array;
+    }
+
     private T23_BroadcastGlobal[] AddBroadcastGlobalArray(T23_BroadcastGlobal[] array, T23_BroadcastGlobal value)
     {
         T23_BroadcastGlobal[] new_array = new T23_BroadcastGlobal[array.Length + 1];
@@ -163,28 +231,15 @@ public class T23_CommonBuffer : UdonSharpBehaviour
         return new_array;
     }
 
-    private void ActivitySwitching()
+    public int GetSeed(T23_BroadcastGlobal broadcast)
     {
-        if (!synced || firstSyncRequests > 0 || sync_broadcastIdxChars)
+        for (int i = 0; i < broadcasts.Length; i++)
         {
-            this.enabled = true;
+            if (broadcasts[i] == broadcast)
+            {
+                return seed + i;
+            }
         }
-        else
-        {
-            this.enabled = false;
-        }
-    }
-
-    private void SendSyncAll()
-    {
-        RequestSerialization();
-        broadcastIdxChars_local = broadcastIdxChars;
-        SendCustomNetworkEvent(NetworkEventTarget.All, nameof(RecieveSyncAll));
-    }
-
-    public void RecieveSyncAll()
-    {
-        this.enabled = true;
-        sync_broadcastIdxChars = true;
+        return seed;
     }
 }

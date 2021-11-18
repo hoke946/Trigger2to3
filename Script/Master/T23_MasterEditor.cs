@@ -65,6 +65,7 @@ internal class T23_MasterEditor : Editor
         }
         broadcastReorderableList.DoLayoutList();
 
+        /*
         EditorGUILayout.BeginHorizontal();
         setBroadcast = (UdonSharpProgramAsset)EditorGUILayout.ObjectField("New Broadcast", setBroadcast, typeof(UdonSharpProgramAsset), false);
         if (GUILayout.Button("Set"))
@@ -72,6 +73,7 @@ internal class T23_MasterEditor : Editor
             EditorApplication.delayCall += () => SetBroadcast();
         }
         EditorGUILayout.EndHorizontal();
+        */
 
         GUILayout.Space(10);
 
@@ -103,6 +105,7 @@ internal class T23_MasterEditor : Editor
         }
         triggerReorderableList.DoLayoutList();
 
+        /*
         EditorGUILayout.BeginHorizontal();
         addTrigger = (UdonSharpProgramAsset)EditorGUILayout.ObjectField("New Trigger", addTrigger, typeof(UdonSharpProgramAsset), false);
         if (GUILayout.Button("Add"))
@@ -110,6 +113,7 @@ internal class T23_MasterEditor : Editor
             AddTrigger();
         }
         EditorGUILayout.EndHorizontal();
+        */
 
         GUILayout.Space(10);
 
@@ -141,6 +145,7 @@ internal class T23_MasterEditor : Editor
         }
         actionReorderableList.DoLayoutList();
 
+        /*
         EditorGUILayout.BeginHorizontal();
         addAction = (UdonSharpProgramAsset)EditorGUILayout.ObjectField("New Action", addAction, typeof(UdonSharpProgramAsset), false);
         if (GUILayout.Button("Add"))
@@ -148,6 +153,7 @@ internal class T23_MasterEditor : Editor
             AddAction();
         }
         EditorGUILayout.EndHorizontal();
+        */
 
         GUILayout.Space(10);
 

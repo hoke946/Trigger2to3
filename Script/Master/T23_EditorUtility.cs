@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using UnityEditor.SceneManagement;
+using VRC.Udon;
 using UdonSharp;
 using UdonSharpEditor;
 using System;
@@ -30,6 +32,10 @@ public class T23_EditorUtility : Editor
                 break;
             case "Action":
                 backColor = Color.cyan;
+                textColor = new Color(0.5f, 0.5f, 0.5f);
+                break;
+            case "Option":
+                backColor = Color.white;
                 textColor = new Color(0.5f, 0.5f, 0.5f);
                 break;
         }
@@ -150,6 +156,33 @@ public class T23_EditorUtility : Editor
             assetList.Add(key, asset);
         }
         return assetList;
+    }
+
+    public static T23_BroadcastGlobal[] TakeCommonBuffersRelate(T23_CommonBuffer commonBuffer)
+    {
+        List<T23_BroadcastGlobal> broadcastGlobals = new List<T23_BroadcastGlobal>();
+        var rootObjs = EditorSceneManager.GetActiveScene().GetRootGameObjects();
+        if (rootObjs.Length > 0)
+        {
+            foreach (var rootObj in rootObjs)
+            {
+                var udons = rootObj.GetComponentsInChildren<UdonBehaviour>(true);
+                foreach (var udon in udons)
+                {
+                    UdonSharpBehaviour usharp = UdonSharpEditorUtility.FindProxyBehaviour(udon);
+                    var broadcast = usharp.GetUdonSharpComponent<T23_BroadcastGlobal>();
+                    if (broadcast)
+                    {
+                        var field = usharp.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
+                        if (field == commonBuffer)
+                        {
+                            broadcastGlobals.Add(broadcast);
+                        }
+                    }
+                }
+            }
+        }
+        return broadcastGlobals.ToArray();
     }
 }
 #endif

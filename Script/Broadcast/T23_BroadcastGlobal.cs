@@ -7,6 +7,7 @@ using VRC.Udon.Common.Interfaces;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
+using System.Collections.Generic;
 #endif
 
 public class T23_BroadcastGlobal : UdonSharpBehaviour
@@ -42,8 +43,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     [UdonSynced(UdonSyncMode.None)]
     private int bufferTimes;
-    private int bufferTimes_local;
-    private bool sync_bufferTimes = false;
 
     private bool synced = false;
     private bool synced2 = false;
@@ -51,8 +50,8 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private float timer = 0;
     private int actionCount = 0;
     private int cbOwnerTrigger = 0;
-    private int firstSyncRequests = 0;
     private int actionIndex = 0;
+    private int buffering_count = 0;
 
     [HideInInspector]
     public float randomTotal;
@@ -131,6 +130,14 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("commonBuffer");
             EditorGUILayout.PropertyField(prop);
+            if (body.commonBuffer)
+            {
+                HashSet<T23_BroadcastGlobal> cbBroadcasts = new HashSet<T23_BroadcastGlobal>(body.commonBuffer.broadcasts);
+                if (!cbBroadcasts.Contains(body))
+                {
+                    EditorGUILayout.HelpBox("CommonBuffer の Set Broadcasts ボタンを押して、登録を反映してください。", MessageType.Warning);
+                }
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -139,80 +146,24 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     void Start()
     {
-        if (Networking.IsOwner(gameObject))
-        {
-            bufferTimes = 0;
-            seed = Random.Range(0, 1000000000);
-            syncReady = true;
-            RequestSerialization();
-        }
-        else
-        {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, "RequestFirstSync" + groupID.ToString());
-        }
-
         if (commonBuffer)
         {
             commonBuffer.LinkBroadcast(this);
         }
-    }
-
-    public void RequestFirstSync0()
-    {
-        //var bg = GetCorrectBroadcast(0);
-        //if (bg) { bg.RequestFirstSync(); }
-        if (groupID == 0) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync1()
-    {
-        if (groupID == 1) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync2()
-    {
-        if (groupID == 2) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync3()
-    {
-        if (groupID == 3) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync4()
-    {
-        if (groupID == 4) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync5()
-    {
-        if (groupID == 5) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync6()
-    {
-        if (groupID == 6) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync7()
-    {
-        if (groupID == 7) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync8()
-    {
-        if (groupID == 8) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync9()
-    {
-        if (groupID == 9) { RequestFirstSync(); }
-    }
-
-    public void RequestFirstSync()
-    {
-        firstSyncRequests++;
-        ActivitySwitching();
+        else
+        {
+            if (Networking.IsOwner(gameObject))
+            {
+                bufferTimes = 0;
+                seed = Random.Range(0, 1000000000);
+                syncReady = true;
+                RequestSerialization();
+            }
+            else
+            {
+                SendCustomNetworkEvent(NetworkEventTarget.Owner, "RequestFirstSync" + groupID.ToString());
+            }
+        }
     }
 
     public void Trigger()
@@ -221,7 +172,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         if (useablePlayer == 2 && !Networking.IsOwner(gameObject)) { return; }
 
         fired = true;
-        ActivitySwitching();
         timer = 0;
     }
 
@@ -233,9 +183,11 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         {
             if (!commonBuffer)
             {
-                for (int t = 0; t < bufferTimes; t++)
+                if (buffering_count < bufferTimes)
                 {
                     UnconditionalFire();
+                    buffering_count++;
+                    return;
                 }
                 SetSynced();
             }
@@ -262,83 +214,11 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             }
             cbOwnerTrigger--;
         }
-
-        if (sync_bufferTimes)
-        {
-            if (bufferTimes_local != bufferTimes)
-            {
-                sync_bufferTimes = false;
-                bufferTimes_local = bufferTimes;
-            }
-        }
-
-        ActivitySwitching();
     }
 
     public void SetSynced()
     {
         synced = true;
-        bufferTimes_local = bufferTimes;
-        if (!Networking.IsOwner(gameObject))
-        {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, "ResponceFirstSynced" + groupID.ToString());
-        }
-    }
-
-    public void ResponceFirstSynced0()
-    {
-        if (groupID == 0) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced1()
-    {
-        if (groupID == 1) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced2()
-    {
-        if (groupID == 2) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced3()
-    {
-        if (groupID == 3) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced4()
-    {
-        if (groupID == 4) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced5()
-    {
-        if (groupID == 5) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced6()
-    {
-        if (groupID == 6) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced7()
-    {
-        if (groupID == 7) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced8()
-    {
-        if (groupID == 8) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced9()
-    {
-        if (groupID == 9) { ResponceFirstSynced(); }
-    }
-
-    public void ResponceFirstSynced()
-    {
-        firstSyncRequests--;
-        ActivitySwitching();
     }
 
     private void SendNetworkFire()
@@ -373,7 +253,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         actionCount++;
         if (randomize && randomTotal > 0)
         {
-            Random.InitState(seed + actionCount);
+            Random.InitState(GetSeed() + actionCount);
             randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
         }
 
@@ -514,7 +394,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, commonBuffer.gameObject);
             cbOwnerTrigger++;
-            ActivitySwitching();
         }
         else
         {
@@ -523,13 +402,13 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 if (bufferTimes == 0)
                 {
                     bufferTimes = 1;
-                    SendSyncAll();
+                    RequestSerialization();
                 }
             }
             else if (bufferType == 2)
             {
                 bufferTimes++;
-                SendSyncAll();
+                RequestSerialization();
             }
         }
     }
@@ -596,78 +475,15 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         return syncReady;
     }
 
-    private void ActivitySwitching()
+    public int GetSeed()
     {
-        if (!synced2 || fired || cbOwnerTrigger > 0 || firstSyncRequests > 0 || sync_bufferTimes)
+        if (commonBuffer)
         {
-            this.enabled = true;
+            return commonBuffer.GetSeed(this);
         }
         else
         {
-            this.enabled = false;
+            return seed;
         }
-    }
-
-    private void SendSyncAll()
-    {
-        RequestSerialization();
-        bufferTimes_local = bufferTimes;
-        SendCustomNetworkEvent(NetworkEventTarget.All, nameof(RecieveSyncAll));
-    }
-
-    public void RecieveSyncAll0()
-    {
-        if (groupID == 0) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll1()
-    {
-        if (groupID == 1) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll2()
-    {
-        if (groupID == 2) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll3()
-    {
-        if (groupID == 3) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll4()
-    {
-        if (groupID == 4) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll5()
-    {
-        if (groupID == 5) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll6()
-    {
-        if (groupID == 6) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll7()
-    {
-        if (groupID == 7) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll8()
-    {
-        if (groupID == 8) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll9()
-    {
-        if (groupID == 9) { RecieveSyncAll(); }
-    }
-
-    public void RecieveSyncAll()
-    {
-        this.enabled = true;
-        sync_bufferTimes = true;
     }
 }

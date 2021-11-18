@@ -7,6 +7,8 @@ using VRC.Udon;
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
 using UnityEditorInternal;
+using UdonSharpEditor;
+using System.Collections.Generic;
 #endif
 
 public class T23_ActiveCustomTrigger : UdonSharpBehaviour
@@ -96,14 +98,54 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("Name");
-            EditorGUILayout.PropertyField(prop);
+            List<string> customNameList = new List<string>();
+            if (body.recievers != null)
+            {
+                foreach (var go in body.recievers)
+                {
+                    if (go)
+                    {
+                        customNameList.AddRange(GetCustomNameList(go));
+                    }
+                }
+            }
+            if (customNameList.Count > 0)
+            {
+                var index = EditorGUILayout.Popup("Name", customNameList.IndexOf(body.Name), customNameList.ToArray());
+                serializedObject.FindProperty("Name").stringValue = index >= 0 ? customNameList[index] : "";
+            }
+            else
+            {
+                serializedObject.FindProperty("Name").stringValue = "";
+            }
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("randomAvg");
             EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private List<string> GetCustomNameList(GameObject targetObject)
+        {
+            List<string> list = new List<string>();
+            var udons = targetObject.GetComponents<UdonBehaviour>();
+            foreach (var udon in udons)
+            {
+                UdonSharpBehaviour usharp = UdonSharpEditorUtility.FindProxyBehaviour(udon);
+                if (usharp.GetUdonSharpComponent<T23_CustomTrigger>())
+                {
+                    var nameField = usharp.GetProgramVariable("Name") as string;
+                    if (nameField != null)
+                    {
+                        if (nameField != "" && !list.Contains(nameField))
+                        {
+                            list.Add(nameField);
+                        }
+                    }
+                }
+            }
+            return list;
         }
     }
 #endif

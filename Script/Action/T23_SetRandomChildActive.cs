@@ -271,7 +271,7 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
 
         if (broadcastGlobal)
         {
-            Random.InitState(broadcastGlobal.seed + seedOffset);
+            Random.InitState(broadcastGlobal.GetSeed() + seedOffset);
             seedOffset++;
         }
 
