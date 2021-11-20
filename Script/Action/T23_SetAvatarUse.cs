@@ -130,14 +130,11 @@ public class T23_SetAvatarUse : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         var pedestal = (VRCAvatarPedestal)GetComponent(typeof(VRCAvatarPedestal));
         pedestal.SetAvatarUse(Networking.LocalPlayer);
-        
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -158,17 +155,5 @@ public class T23_SetAvatarUse : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

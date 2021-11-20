@@ -7,7 +7,7 @@ using VRC.Udon.Common.Interfaces;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
-using System.Collections.Generic;
+using UdonSharpEditor;
 #endif
 
 public class T23_BroadcastGlobal : UdonSharpBehaviour
@@ -50,7 +50,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private float timer = 0;
     private int actionCount = 0;
     private int cbOwnerTrigger = 0;
-    private int actionIndex = 0;
     private int buffering_count = 0;
 
     [HideInInspector]
@@ -128,15 +127,15 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("randomize");
             EditorGUILayout.PropertyField(prop);
+
+            EditorGUI.BeginChangeCheck();
             prop = serializedObject.FindProperty("commonBuffer");
             EditorGUILayout.PropertyField(prop);
-            if (body.commonBuffer)
+            if (EditorGUI.EndChangeCheck())
             {
-                HashSet<T23_BroadcastGlobal> cbBroadcasts = new HashSet<T23_BroadcastGlobal>(body.commonBuffer.broadcasts);
-                if (!cbBroadcasts.Contains(body))
-                {
-                    EditorGUILayout.HelpBox("CommonBuffer の Set Broadcasts ボタンを押して、登録を反映してください。", MessageType.Warning);
-                }
+                serializedObject.ApplyModifiedProperties();
+                serializedObject.Update();
+                T23_EditorUtility.UpdateAllCommonBuffersRelate();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -185,7 +184,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             {
                 if (buffering_count < bufferTimes)
                 {
-                    UnconditionalFire();
+                    if (!UnconditionalFire()) { return; }
                     buffering_count++;
                     return;
                 }
@@ -248,8 +247,10 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         UnconditionalFire();
     }
 
-    public void UnconditionalFire()
+    public bool UnconditionalFire()
     {
+        if (actions == null) { return false; }
+
         actionCount++;
         if (randomize && randomTotal > 0)
         {
@@ -257,20 +258,11 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
         }
 
-        actionIndex = 0;
-        if (actionIndex < actions.Length)
+        for (int i = 0; i < actions.Length; i++)
         {
-            actions[actionIndex].SendCustomEvent("Action");
+            actions[i].SendCustomEvent("Action");
         }
-    }
-
-    public void NextAction()
-    {
-        actionIndex++;
-        if (actionIndex < actions.Length)
-        {
-            actions[actionIndex].SendCustomEvent("Action");
-        }
+        return true;
     }
 
     /*
@@ -415,6 +407,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     public void AddActions(UdonSharpBehaviour actionTarget, int priority)
     {
+        Debug.Log($"Recieve AddActions:{gameObject.name}");
         if (actions == null)
         {
             actions = new UdonSharpBehaviour[1];

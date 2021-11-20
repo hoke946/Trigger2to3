@@ -144,13 +144,10 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         Networking.LocalPlayer.TeleportTo(teleportLocation.position, teleportLocation.rotation, teleportOrientation, lerpOnRemote);
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -171,17 +168,5 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

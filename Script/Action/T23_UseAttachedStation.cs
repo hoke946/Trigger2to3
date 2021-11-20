@@ -129,13 +129,10 @@ public class T23_UseAttachedStation : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         Networking.LocalPlayer.UseAttachedStation();
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -156,17 +153,5 @@ public class T23_UseAttachedStation : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

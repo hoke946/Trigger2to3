@@ -103,9 +103,9 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                     broadcast.gameObject.SetActive(true);
                     return;
                 }
-                broadcast.UnconditionalFire();
-
+                if (!broadcast.UnconditionalFire()) { return; }
                 buffering_count++;
+
                 return;
             }
             foreach (var broadcast in broadcasts)

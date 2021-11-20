@@ -26,10 +26,6 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
     [SerializeField]
     private int ownershipControl;
 
-    private bool executing = false;
-    private bool executed;
-    private float waitTimer;
-
     [SerializeField, Range(0, 1)]
     private float randomAvg;
 
@@ -159,62 +155,18 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
         this.enabled = false;
     }
 
-    void Update()
-    {
-        if (executing)
-        {
-            bool failure = false;
-            if (!executed)
-            {
-                if (Networking.IsOwner(udonBehaviour.gameObject))
-                {
-                    Execute();
-                    executed = true;
-                }
-                else
-                {
-                    failure = true;
-                }
-            }
-
-            if (!failure)
-            {
-                executing = false;
-                this.enabled = false;
-                Finish();
-            }
-
-            waitTimer += Time.deltaTime;
-            if (waitTimer > 5)
-            {
-                executing = false;
-                this.enabled = false;
-                Finish();
-            }
-        }
-    }
-
     public void Action()
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         if (ownershipControl == 2)
         {
             Networking.SetOwner(Networking.LocalPlayer, udonBehaviour.gameObject);
-            executing = true;
-            this.enabled = true;
-            executed = false;
-            waitTimer = 0;
         }
-        else
-        {
-            Execute();
-            Finish();
-        }
+        Execute();
     }
 
     private void Execute()
@@ -252,17 +204,5 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

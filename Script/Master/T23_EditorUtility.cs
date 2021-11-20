@@ -166,14 +166,12 @@ public class T23_EditorUtility : Editor
         {
             foreach (var rootObj in rootObjs)
             {
-                var udons = rootObj.GetComponentsInChildren<UdonBehaviour>(true);
-                foreach (var udon in udons)
+                var broadcasts = rootObj.GetComponentsInChildren<T23_BroadcastGlobal>(true);
+                foreach (var broadcast in broadcasts)
                 {
-                    UdonSharpBehaviour usharp = UdonSharpEditorUtility.FindProxyBehaviour(udon);
-                    var broadcast = usharp.GetUdonSharpComponent<T23_BroadcastGlobal>();
-                    if (broadcast)
+                    if (UdonSharpEditorUtility.IsProxyBehaviour(broadcast))
                     {
-                        var field = usharp.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
+                        var field = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
                         if (field == commonBuffer)
                         {
                             broadcastGlobals.Add(broadcast);
@@ -183,6 +181,20 @@ public class T23_EditorUtility : Editor
             }
         }
         return broadcastGlobals.ToArray();
+    }
+
+    public static void UpdateAllCommonBuffersRelate()
+    {
+        var commonBuffers = new List<T23_CommonBuffer>();
+        foreach (var rootObj in EditorSceneManager.GetActiveScene().GetRootGameObjects())
+        {
+            commonBuffers.AddRange(rootObj.GetComponentsInChildren<T23_CommonBuffer>(true));
+        }
+        foreach (var commonBuffer in commonBuffers)
+        {
+            commonBuffer.broadcasts = T23_EditorUtility.TakeCommonBuffersRelate(commonBuffer);
+            UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
+        }
     }
 }
 #endif

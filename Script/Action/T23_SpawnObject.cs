@@ -158,7 +158,6 @@ public class T23_SpawnObject : UdonSharpBehaviour
     {
         if (!prefab || !RandomJudgement())
         {
-            Finish();
             return;
         }
 
@@ -171,8 +170,6 @@ public class T23_SpawnObject : UdonSharpBehaviour
                 obj.transform.rotation = locations[i].rotation;
             }
         }
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -193,17 +190,5 @@ public class T23_SpawnObject : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

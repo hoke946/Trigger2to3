@@ -22,10 +22,6 @@ public class T23_PickupDrop : UdonSharpBehaviour
     [SerializeField]
     private bool takeOwnership;
 
-    private bool executing = false;
-    private bool[] executed;
-    private float waitTimer;
-
     [SerializeField, Range(0, 1)]
     private float randomAvg;
 
@@ -159,52 +155,10 @@ public class T23_PickupDrop : UdonSharpBehaviour
         this.enabled = false;
     }
 
-    void Update()
-    {
-        if (executing)
-        {
-            bool failure = false;
-            for (int i = 0; i < recievers.Length; i++)
-            {
-                if (recievers[i])
-                {
-                    if (!executed[i])
-                    {
-                        if (Networking.IsOwner(recievers[i].gameObject))
-                        {
-                            Execute(recievers[i]);
-                            executed[i] = true;
-                        }
-                        else
-                        {
-                            failure = true;
-                        }
-                    }
-                }
-            }
-
-            if (!failure)
-            {
-                executing = false;
-                this.enabled = false;
-                Finish();
-            }
-
-            waitTimer += Time.deltaTime;
-            if (waitTimer > 5)
-            {
-                executing = false;
-                this.enabled = false;
-                Finish();
-            }
-        }
-    }
-
     public void Action()
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
@@ -215,21 +169,9 @@ public class T23_PickupDrop : UdonSharpBehaviour
                 if (takeOwnership)
                 {
                     Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
-                    executing = true;
-                    this.enabled = true;
-                    executed = new bool[recievers.Length];
-                    waitTimer = 0;
                 }
-                else
-                {
-                    Execute(recievers[i]);
-                }
+                Execute(recievers[i]);
             }
-        }
-
-        if (!takeOwnership)
-        {
-            Finish();
         }
     }
 
@@ -256,17 +198,5 @@ public class T23_PickupDrop : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

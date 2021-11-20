@@ -167,7 +167,6 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
@@ -185,8 +184,6 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
                 SetParameter(player);
             }
         }
-
-        Finish();
     }
 
     private void SetParameter(VRCPlayerApi player)
@@ -216,17 +213,5 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

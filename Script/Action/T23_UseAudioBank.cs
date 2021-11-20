@@ -158,7 +158,6 @@ public class T23_UseAudioBank : UdonSharpBehaviour
     {
         if (!audioBank || !RandomJudgement())
         {
-            Finish();
             return;
         }
 
@@ -184,8 +183,6 @@ public class T23_UseAudioBank : UdonSharpBehaviour
                 audioBank.Shuffle();
                 break;
         }
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -206,17 +203,5 @@ public class T23_UseAudioBank : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

@@ -144,15 +144,12 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         Networking.LocalPlayer.SetWalkSpeed(walkSpeed);
         Networking.LocalPlayer.SetRunSpeed(runSpeed);
         Networking.LocalPlayer.SetStrafeSpeed(strafeSpeed);
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -173,17 +170,5 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

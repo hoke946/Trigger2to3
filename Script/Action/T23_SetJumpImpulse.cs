@@ -134,12 +134,10 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         Networking.LocalPlayer.SetJumpImpulse(impulse);
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -160,17 +158,5 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

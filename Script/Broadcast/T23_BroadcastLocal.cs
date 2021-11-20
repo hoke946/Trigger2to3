@@ -25,7 +25,6 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     //private bool synced = false;
     private bool fired = false;
     private float timer = 0;
-    private int actionIndex = 0;
 
     [HideInInspector]
     public VRCPlayerApi triggeredPlayer;
@@ -138,19 +137,9 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
             randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
         }
 
-        actionIndex = 0;
-        if (actionIndex < actions.Length)
+        for (int i = 0; i < actions.Length; i++)
         {
-            actions[actionIndex].SendCustomEvent("Action");
-        }
-    }
-
-    public void NextAction()
-    {
-        actionIndex++;
-        if (actionIndex < actions.Length)
-        {
-            actions[actionIndex].SendCustomEvent("Action");
+            actions[i].SendCustomEvent("Action");
         }
     }
 

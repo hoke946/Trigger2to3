@@ -134,13 +134,10 @@ public class T23_AddPlayerVelocity : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
         Networking.LocalPlayer.SetVelocity(Networking.LocalPlayer.GetVelocity() + velocity);
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -161,17 +158,5 @@ public class T23_AddPlayerVelocity : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }

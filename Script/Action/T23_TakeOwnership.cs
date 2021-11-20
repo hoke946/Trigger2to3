@@ -149,7 +149,6 @@ public class T23_TakeOwnership : UdonSharpBehaviour
     {
         if (!RandomJudgement())
         {
-            Finish();
             return;
         }
 
@@ -160,8 +159,6 @@ public class T23_TakeOwnership : UdonSharpBehaviour
                 Networking.SetOwner(Networking.LocalPlayer, recievers[i]);
             }
         }
-
-        Finish();
     }
 
     private bool RandomJudgement()
@@ -182,17 +179,5 @@ public class T23_TakeOwnership : UdonSharpBehaviour
         }
 
         return false;
-    }
-
-    private void Finish()
-    {
-        if (broadcastLocal)
-        {
-            broadcastLocal.NextAction();
-        }
-        else if (broadcastGlobal)
-        {
-            broadcastGlobal.NextAction();
-        }
     }
 }
