@@ -17,6 +17,9 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
     [SerializeField]
     private bool excludeLocal = true;
 
+    [SerializeField]
+    private bool excludePostJoinng = true;
+
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
@@ -24,6 +27,8 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
     public VRCPlayerApi triggeredPlayer = Networking.LocalPlayer;
     [HideInInspector]
     public bool playerTrigger = true;
+
+    private int frameCount = 100;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_OnPlayerJoined))]
@@ -65,6 +70,8 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("excludeLocal");
             EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("excludePostJoinng");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -97,9 +104,22 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
         }
     }
 
+    void Update()
+    {
+        if (frameCount > 0)
+        {
+            frameCount--;
+        }
+    }
+
     public override void OnPlayerJoined(VRCPlayerApi player)
     {
-        if (excludeLocal && player == Networking.LocalPlayer) { return; }
+        if (player == Networking.LocalPlayer)
+        {
+            frameCount = 5;
+            if (excludeLocal) { return; }
+        }
+        if (excludePostJoinng && frameCount > 0) { return; }
 
         AnyPlayerTrigger(player);
     }

@@ -51,6 +51,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private int actionCount = 0;
     private int cbOwnerTrigger = 0;
     private int buffering_count = 0;
+    private int ownerProcessFinished = 0;
 
     [HideInInspector]
     public float randomTotal;
@@ -232,9 +233,8 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         // local simulation
         Fire();
 #else
-        SendCustomNetworkEvent(sendTarget, "RecieveNetworkFire" + groupID.ToString());
-
         SendCustomNetworkEvent(NetworkEventTarget.Owner, "OwnerProcess" + groupID.ToString());
+        SendCustomNetworkEvent(sendTarget, "RecieveNetworkFire" + groupID.ToString());
 #endif
 
         fired = false;
@@ -282,52 +282,65 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     public void RecieveNetworkFire0()
     {
-        if (groupID == 0) { Fire(); }
+        if (groupID == 0) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire1()
     {
-        if (groupID == 1) { Fire(); }
+        if (groupID == 1) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire2()
     {
-        if (groupID == 2) { Fire(); }
+        if (groupID == 2) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire3()
     {
-        if (groupID == 3) { Fire(); }
+        if (groupID == 3) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire4()
     {
-        if (groupID == 4) { Fire(); }
+        if (groupID == 4) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire5()
     {
-        if (groupID == 5) { Fire(); }
+        if (groupID == 5) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire6()
     {
-        if (groupID == 6) { Fire(); }
+        if (groupID == 6) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire7()
     {
-        if (groupID == 7) { Fire(); }
+        if (groupID == 7) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire8()
     {
-        if (groupID == 8) { Fire(); }
+        if (groupID == 8) { RecieveNetworkFire(); }
     }
 
     public void RecieveNetworkFire9()
     {
-        if (groupID == 9) { Fire(); }
+        if (groupID == 9) { RecieveNetworkFire(); }
+    }
+
+    public void RecieveNetworkFire()
+    {
+        if (Networking.IsOwner(gameObject) && ownerProcessFinished == 0)
+        {
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, "RecieveNetworkFire" + groupID.ToString());
+            return;
+        }
+
+        Fire();
+
+        ownerProcessFinished--;
     }
 
     public void OwnerProcess0()
@@ -403,11 +416,11 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 RequestSerialization();
             }
         }
+        ownerProcessFinished++;
     }
 
     public void AddActions(UdonSharpBehaviour actionTarget, int priority)
     {
-        Debug.Log($"Recieve AddActions:{gameObject.name}");
         if (actions == null)
         {
             actions = new UdonSharpBehaviour[1];
