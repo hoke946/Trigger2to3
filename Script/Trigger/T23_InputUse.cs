@@ -19,6 +19,9 @@ public class T23_InputUse : UdonSharpBehaviour
     [SerializeField]
     private bool inputValue = true;
 
+    [SerializeField]
+    private int hand;
+
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
@@ -35,6 +38,13 @@ public class T23_InputUse : UdonSharpBehaviour
         {
             Down = 1,
             Up = 0
+        }
+
+        enum HandType
+        {
+            Any = 0,
+            Right = 1,
+            Left = 2
         }
 
         void OnEnable()
@@ -68,6 +78,8 @@ public class T23_InputUse : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("inputValue");
             prop.boolValue = (InputValue)EditorGUILayout.EnumPopup("Value", (InputValue)System.Convert.ToInt32(body.inputValue)) == InputValue.Down;
+            prop = serializedObject.FindProperty("hand");
+            prop.intValue = (int)(HandType)EditorGUILayout.EnumPopup("Hand", (HandType)System.Convert.ToInt32(body.hand));
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -104,7 +116,10 @@ public class T23_InputUse : UdonSharpBehaviour
     {
         if (value == inputValue)
         {
-            Trigger();
+            if (hand == 0 || (hand == 1 && args.handType == HandType.RIGHT) || (hand == 2 && args.handType == HandType.LEFT))
+            {
+                Trigger();
+            }
         }
     }
 

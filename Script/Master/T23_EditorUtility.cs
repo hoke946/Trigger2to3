@@ -172,7 +172,7 @@ public class T23_EditorUtility : Editor
                     if (UdonSharpEditorUtility.IsProxyBehaviour(broadcast))
                     {
                         var field = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
-                        if (field == commonBuffer)
+                        if (field != null && field.transform.GetHierarchyPath() == commonBuffer.transform.GetHierarchyPath())
                         {
                             broadcastGlobals.Add(broadcast);
                         }

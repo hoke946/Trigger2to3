@@ -26,6 +26,11 @@ public class T23_OnExitCollider : UdonSharpBehaviour
     private Collision enterCollider;
     private VRCPlayerApi enterPlayer;
 
+    [HideInInspector]
+    public VRCPlayerApi triggeredPlayer = Networking.LocalPlayer;
+    [HideInInspector]
+    public bool playerTrigger = true;
+
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_OnExitCollider))]
     internal class T23_OnExitColliderEditor : Editor
@@ -165,6 +170,7 @@ public class T23_OnExitCollider : UdonSharpBehaviour
 
     private void AnyPlayerTrigger(VRCPlayerApi player)
     {
+        triggeredPlayer = player;
         if (broadcastLocal)
         {
             broadcastLocal.AnyPlayerTrigger(player);

@@ -17,6 +17,9 @@ public class T23_OnKeyDown : UdonSharpBehaviour
     [SerializeField]
     private KeyCode key;
 
+    [SerializeField]
+    private string keyFree;
+
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
@@ -60,6 +63,8 @@ public class T23_OnKeyDown : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("key");
             EditorGUILayout.PropertyField(prop);
+            prop = serializedObject.FindProperty("keyFree");
+            EditorGUILayout.PropertyField(prop);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -94,9 +99,19 @@ public class T23_OnKeyDown : UdonSharpBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(key))
+        if (keyFree == "")
         {
-            Trigger();
+            if (Input.GetKeyDown(key))
+            {
+                Trigger();
+            }
+        }
+        else
+        {
+            if (Input.GetKeyDown(keyFree))
+            {
+                Trigger();
+            }
         }
     }
 

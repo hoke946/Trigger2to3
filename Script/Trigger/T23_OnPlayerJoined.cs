@@ -15,13 +15,15 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
     public const bool isTrigger = true;
 
     [SerializeField]
-    private bool excludeLocal;
+    private bool excludeLocal = true;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
-    private bool onJoined = false;
-    private bool firstFlame = true;
+    [HideInInspector]
+    public VRCPlayerApi triggeredPlayer = Networking.LocalPlayer;
+    [HideInInspector]
+    public bool playerTrigger = true;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_OnPlayerJoined))]
@@ -93,37 +95,21 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
                 }
             }
         }
-
-        onJoined = true;
     }
 
     public override void OnPlayerJoined(VRCPlayerApi player)
     {
         if (excludeLocal && player == Networking.LocalPlayer) { return; }
 
-        onJoined = true;
+        AnyPlayerTrigger(player);
     }
 
-    void Update()
+    private void AnyPlayerTrigger(VRCPlayerApi player)
     {
-        if (firstFlame)
-        {
-            firstFlame = false;
-            return;
-        }
-
-        if (onJoined)
-        {
-            Trigger();
-            onJoined = false;
-        }
-    }
-
-    private void Trigger()
-    {
+        triggeredPlayer = player;
         if (broadcastLocal)
         {
-            broadcastLocal.Trigger();
+            broadcastLocal.AnyPlayerTrigger(player);
         }
         else if (broadcastGlobal)
         {
