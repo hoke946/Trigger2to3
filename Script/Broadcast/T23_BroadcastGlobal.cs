@@ -32,8 +32,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     public bool randomize;
 
-    [SerializeField]
-    private T23_CommonBuffer commonBuffer;
+    public T23_CommonBuffer commonBuffer;
 
     private UdonSharpBehaviour[] actions;
     private int[] priorities;
@@ -49,9 +48,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private bool fired = false;
     private float timer = 0;
     private int actionCount = 0;
-    private int cbOwnerTrigger = 0;
     private int buffering_count = 0;
-    private int ownerProcessFinished = 0;
 
     [HideInInspector]
     public float randomTotal;
@@ -201,19 +198,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 SendNetworkFire();
             }
         }
-
-        if (cbOwnerTrigger > 0)
-        {
-            if (Networking.IsOwner(commonBuffer.gameObject))
-            {
-                if (randomize && randomTotal > 0)
-                {
-                    randomValue = Random.Range(0, Mathf.Max(1, randomTotal));
-                }
-                commonBuffer.EntryBuffer(this, bufferType);
-            }
-            cbOwnerTrigger--;
-        }
     }
 
     public void SetSynced()
@@ -332,15 +316,8 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     public void RecieveNetworkFire()
     {
-        if (Networking.IsOwner(gameObject) && ownerProcessFinished == 0)
-        {
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, "RecieveNetworkFire" + groupID.ToString());
-            return;
-        }
-
+        if (Networking.IsOwner(gameObject)) { return; }
         Fire();
-
-        ownerProcessFinished--;
     }
 
     public void OwnerProcess0()
@@ -398,7 +375,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         if (commonBuffer)
         {
             Networking.SetOwner(Networking.LocalPlayer, commonBuffer.gameObject);
-            cbOwnerTrigger++;
+            commonBuffer.EntryBuffer(this, bufferType);
         }
         else
         {
@@ -416,7 +393,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 RequestSerialization();
             }
         }
-        ownerProcessFinished++;
+        Fire();
     }
 
     public void AddActions(UdonSharpBehaviour actionTarget, int priority)

@@ -24,7 +24,8 @@ public class T23_CommonBuffer : UdonSharpBehaviour
 
     private bool synced = false;
     private int buffering_count = 0;
-    
+    private int[] onHoldBuffer = new int[0];
+
     [UdonSynced(UdonSyncMode.None)]
     private int seed;
 
@@ -63,6 +64,10 @@ public class T23_CommonBuffer : UdonSharpBehaviour
             {
                 body.broadcasts = T23_EditorUtility.TakeCommonBuffersRelate(body);
             }
+            if (GUILayout.Button("Join Empty Broadcasts"))
+            {
+                T23_EditorUtility.JoinAllBufferingBroadcasts(body);
+            }
 
             prop = serializedObject.FindProperty("broadcasts");
             EditorGUILayout.PropertyField(prop);
@@ -84,23 +89,29 @@ public class T23_CommonBuffer : UdonSharpBehaviour
 
     void Update()
     {
+        for (int i = 0; i < onHoldBuffer.Length; i++)
+        {
+            if (broadcasts[onHoldBuffer[i]].gameObject.activeInHierarchy)
+            {
+                if (!broadcasts[onHoldBuffer[i]].UnconditionalFire()) { break; }
+                onHoldBuffer = RemoveIntArray(onHoldBuffer, i);
+                break;
+            }
+        }
+
         if (!synced && syncReady)
         {
-            if (broadcasts == null) { return; }
-
-            for (int i = 0; i < broadcastIdx.Length; i++)
-            {
-                if (broadcastIdx[i] >= broadcasts.Length)
-                {
-                    return;
-                }
-            }
             if (buffering_count < broadcastIdx.Length)
             {
                 var broadcast = broadcasts[broadcastIdx[buffering_count]];
-                if (!broadcast.gameObject.activeSelf)
+                if (!broadcast.gameObject.activeInHierarchy)
                 {
                     broadcast.gameObject.SetActive(true);
+                    if (!broadcast.gameObject.activeInHierarchy)
+                    {
+                        onHoldBuffer = AddIntArray(onHoldBuffer, broadcastIdx[buffering_count]);
+                        buffering_count++;
+                    }
                     return;
                 }
                 if (!broadcast.UnconditionalFire()) { return; }

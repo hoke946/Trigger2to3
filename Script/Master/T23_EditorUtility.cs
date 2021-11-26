@@ -196,5 +196,28 @@ public class T23_EditorUtility : Editor
             UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
         }
     }
+
+    public static void JoinAllBufferingBroadcasts(T23_CommonBuffer commonBuffer)
+    {
+        foreach (var rootObj in EditorSceneManager.GetActiveScene().GetRootGameObjects())
+        {
+            var broadcasts = rootObj.GetComponentsInChildren<T23_BroadcastGlobal>(true);
+            foreach (var broadcast in broadcasts)
+            {
+                if (UdonSharpEditorUtility.IsProxyBehaviour(broadcast))
+                {
+                    var commonBufferField = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
+                    var bufferTypeField = broadcast.GetProgramVariable("bufferType") as int?;
+                    if (commonBufferField == null && bufferTypeField != 0)
+                    {
+                        broadcast.commonBuffer = commonBuffer;
+                        UdonSharpEditorUtility.CopyProxyToUdon(broadcast);
+                    }
+                }
+            }
+        }
+        commonBuffer.broadcasts = TakeCommonBuffersRelate(commonBuffer);
+        UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
+    }
 }
 #endif
