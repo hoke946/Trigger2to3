@@ -24,9 +24,6 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
     [SerializeField]
     private string Name;
 
-    [SerializeField]
-    private bool takeOwnership;
-
     [SerializeField, Range(0, 1)]
     private float randomAvg;
 
@@ -112,12 +109,14 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
             }
             else
             {
-                serializedObject.FindProperty("Name").stringValue = "";
+                prop = serializedObject.FindProperty("Name");
+                EditorGUILayout.PropertyField(prop);
             }
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -129,7 +128,7 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
             foreach (var udon in udons)
             {
                 UdonSharpBehaviour usharp = UdonSharpEditorUtility.FindProxyBehaviour(udon);
-                if (usharp.GetUdonSharpComponent<T23_CustomTrigger>())
+                if (usharp && usharp.GetUdonSharpComponent<T23_CustomTrigger>())
                 {
                     var nameField = usharp.GetProgramVariable("Name") as string;
                     if (nameField != null)
@@ -193,11 +192,6 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
                 }
             }
         }
-
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
         
         this.enabled = false;
     }
@@ -213,10 +207,6 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
         {
             if (recievers[i])
             {
-                if (takeOwnership)
-                {
-                    Networking.SetOwner(Networking.LocalPlayer, recievers[i]);
-                }
                 Execute(recievers[i]);
             }
         }

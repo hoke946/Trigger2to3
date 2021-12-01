@@ -18,12 +18,24 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
 
     [SerializeField]
     private float walkSpeed = 2;
+    [SerializeField]
+    private T23_PropertyBox propertyBox_walk;
+    [SerializeField]
+    private bool usePropertyBox_walk;
 
     [SerializeField]
     private float runSpeed = 4;
+    [SerializeField]
+    private T23_PropertyBox propertyBox_run;
+    [SerializeField]
+    private bool usePropertyBox_run;
 
     [SerializeField]
     private float strafeSpeed = 2;
+    [SerializeField]
+    private T23_PropertyBox propertyBox_strafe;
+    [SerializeField]
+    private bool usePropertyBox_strafe;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -75,14 +87,14 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            prop = serializedObject.FindProperty("walkSpeed");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("runSpeed");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("strafeSpeed");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            T23_EditorUtility.PropertyBoxField(serializedObject, "walkSpeed", "propertyBox_walk", "usePropertyBox_walk");
+            T23_EditorUtility.PropertyBoxField(serializedObject, "runSpeed", "propertyBox_run", "usePropertyBox_run");
+            T23_EditorUtility.PropertyBoxField(serializedObject, "strafeSpeed", "propertyBox_strafe", "usePropertyBox_strafe");
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -147,6 +159,18 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox_walk && propertyBox_walk)
+        {
+            walkSpeed = propertyBox_walk.value_f;
+        }
+        if (usePropertyBox_run && propertyBox_run)
+        {
+            runSpeed = propertyBox_run.value_f;
+        }
+        if (usePropertyBox_strafe && propertyBox_strafe)
+        {
+            strafeSpeed = propertyBox_strafe.value_f;
+        }
         Networking.LocalPlayer.SetWalkSpeed(walkSpeed);
         Networking.LocalPlayer.SetRunSpeed(runSpeed);
         Networking.LocalPlayer.SetStrafeSpeed(strafeSpeed);

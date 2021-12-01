@@ -95,8 +95,11 @@ public class T23_SpawnObject : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

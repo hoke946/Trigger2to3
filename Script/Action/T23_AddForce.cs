@@ -21,6 +21,10 @@ public class T23_AddForce : UdonSharpBehaviour
 
     [SerializeField]
     private Vector3 force;
+    [SerializeField]
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField]
     private bool useWorldSpace;
@@ -95,14 +99,16 @@ public class T23_AddForce : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("force");
-            EditorGUILayout.PropertyField(prop);
+            T23_EditorUtility.PropertyBoxField(serializedObject, "force", "propertyBox", "usePropertyBox");
             prop = serializedObject.FindProperty("useWorldSpace");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -172,6 +178,10 @@ public class T23_AddForce : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            force = propertyBox.value_v3;
+        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])

@@ -22,9 +22,6 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
     [SerializeField]
     private string trigger;
 
-    [SerializeField]
-    private bool takeOwnership;
-
     [SerializeField, Range(0, 1)]
     private float randomAvg;
 
@@ -94,10 +91,11 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("trigger");
             EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -152,11 +150,6 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
             }
         }
 
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
-
         this.enabled = false;
     }
 
@@ -171,10 +164,6 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
         {
             if (recievers[i])
             {
-                if (takeOwnership)
-                {
-                    Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
-                }
                 Execute(recievers[i]);
             }
         }

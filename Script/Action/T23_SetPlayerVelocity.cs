@@ -18,6 +18,10 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
 
     [SerializeField]
     private Vector3 velocity;
+    [SerializeField]
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -69,10 +73,12 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            prop = serializedObject.FindProperty("velocity");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            T23_EditorUtility.PropertyBoxField(serializedObject, "velocity", "propertyBox", "usePropertyBox");
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -137,6 +143,10 @@ public class T23_SetPlayerVelocity : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            velocity = propertyBox.value_v3;
+        }
         Networking.LocalPlayer.SetVelocity(velocity);
     }
 

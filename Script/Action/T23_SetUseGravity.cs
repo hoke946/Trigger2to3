@@ -21,6 +21,10 @@ public class T23_SetUseGravity : UdonSharpBehaviour
 
     [SerializeField]
     private bool operation = true;
+    [SerializeField]
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField]
     private bool takeOwnership;
@@ -98,13 +102,15 @@ public class T23_SetUseGravity : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("operation");
-            prop.boolValue = (BoolOperation)EditorGUILayout.EnumPopup("Operation", (BoolOperation)System.Convert.ToInt32(body.operation)) == BoolOperation.True;
+            T23_EditorUtility.PropertyBoxField(serializedObject, "operation", "propertyBox", "usePropertyBox", () => serializedObject.FindProperty("operation").boolValue = (BoolOperation)EditorGUILayout.EnumPopup("Operation", (BoolOperation)System.Convert.ToInt32(body.operation)) == BoolOperation.True);
 
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -174,6 +180,10 @@ public class T23_SetUseGravity : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            operation = propertyBox.value_b;
+        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])

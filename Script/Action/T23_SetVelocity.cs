@@ -21,6 +21,10 @@ public class T23_SetVelocity : UdonSharpBehaviour
 
     [SerializeField]
     private Vector3 velocity;
+    [SerializeField]
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField]
     private bool useWorldSpace;
@@ -95,14 +99,16 @@ public class T23_SetVelocity : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("velocity");
-            EditorGUILayout.PropertyField(prop);
+            T23_EditorUtility.PropertyBoxField(serializedObject, "velocity", "propertyBox", "usePropertyBox");
             prop = serializedObject.FindProperty("useWorldSpace");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -172,6 +178,10 @@ public class T23_SetVelocity : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            velocity = propertyBox.value_v3;
+        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])

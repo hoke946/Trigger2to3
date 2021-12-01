@@ -22,7 +22,6 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     private UdonSharpBehaviour[] actions;
     private int[] priorities;
 
-    //private bool synced = false;
     private bool fired = false;
     private float timer = 0;
 
@@ -67,6 +66,7 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
             if (master)
             {
                 GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
+                master.randomize = body.randomize;
             }
             else
             {
@@ -82,11 +82,6 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
         }
     }
 #endif
-
-    void Start()
-    {
-        this.enabled = false;
-    }
 
     public void Trigger()
     {
@@ -110,7 +105,7 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
         }
         else
         {
-            Fire(false);
+            Fire();
         }
     }
 
@@ -121,14 +116,14 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
             timer += Time.deltaTime;
             if (timer > delayInSeconds)
             {
-                Fire(false);
+                Fire();
                 fired = false;
                 this.enabled = false;
             }
         }
     }
 
-    private void Fire(bool local)
+    private void Fire()
     {
         if (actions == null) { return; }
 

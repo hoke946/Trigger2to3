@@ -22,9 +22,6 @@ public class T23_AudioPause : UdonSharpBehaviour
     [SerializeField]
     private bool operation = true;
 
-    [SerializeField]
-    private bool takeOwnership;
-
     [SerializeField, Range(0, 1)]
     private float randomAvg;
 
@@ -100,10 +97,11 @@ public class T23_AudioPause : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("operation");
             prop.boolValue = (PauseOperation)EditorGUILayout.EnumPopup("Operation", (PauseOperation)System.Convert.ToInt32(body.operation)) == PauseOperation.Pause;
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -158,11 +156,6 @@ public class T23_AudioPause : UdonSharpBehaviour
             }
         }
 
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
-
         this.enabled = false;
     }
 
@@ -177,10 +170,6 @@ public class T23_AudioPause : UdonSharpBehaviour
         {
             if (recievers[i])
             {
-                if (takeOwnership)
-                {
-                    Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
-                }
                 Execute(recievers[i]);
             }
         }

@@ -62,7 +62,8 @@ public class T23_ConnectFromUdon : UdonSharpBehaviour
             }
             else
             {
-                serializedObject.FindProperty("customTriggerName").stringValue = "";
+                prop = serializedObject.FindProperty("customTriggerName");
+                EditorGUILayout.PropertyField(prop);
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -75,7 +76,7 @@ public class T23_ConnectFromUdon : UdonSharpBehaviour
             foreach (var udon in udons)
             {
                 UdonSharpBehaviour usharp = UdonSharpEditorUtility.FindProxyBehaviour(udon);
-                if (usharp.GetUdonSharpComponent<T23_CustomTrigger>())
+                if (usharp && usharp.GetUdonSharpComponent<T23_CustomTrigger>())
                 {
                     var nameField = usharp.GetProgramVariable("Name") as string;
                     if (nameField != null)

@@ -20,7 +20,27 @@ public class T23_TeleportObject : UdonSharpBehaviour
     private GameObject[] recievers;
 
     [SerializeField]
+    private bool byValue;
+
+    [SerializeField]
     private Transform teleportLocation;
+
+    [SerializeField]
+    private bool local;
+
+    [SerializeField]
+    private Vector3 teleportPosition;
+    [SerializeField]
+    private T23_PropertyBox positionPropertyBox;
+    [SerializeField]
+    private bool positionUsePropertyBox;
+
+    [SerializeField]
+    private Vector3 teleportRotation;
+    [SerializeField]
+    private T23_PropertyBox rotationPropertyBox;
+    [SerializeField]
+    private bool rotationUsePropertyBox;
 
     [SerializeField]
     private bool removeVelocity;
@@ -95,14 +115,29 @@ public class T23_TeleportObject : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("teleportLocation");
+            prop = serializedObject.FindProperty("byValue");
             EditorGUILayout.PropertyField(prop);
+            if (body.byValue)
+            {
+                prop = serializedObject.FindProperty("local");
+                EditorGUILayout.PropertyField(prop);
+                T23_EditorUtility.PropertyBoxField(serializedObject, "teleportPosition", "positionPropertyBox", "positionUsePropertyBox");
+                T23_EditorUtility.PropertyBoxField(serializedObject, "teleportRotation", "rotationPropertyBox", "rotationUsePropertyBox");
+            }
+            else
+            {
+                prop = serializedObject.FindProperty("teleportLocation");
+                EditorGUILayout.PropertyField(prop);
+            }
             prop = serializedObject.FindProperty("removeVelocity");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("takeOwnership");
             EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -172,6 +207,17 @@ public class T23_TeleportObject : UdonSharpBehaviour
             return;
         }
 
+        if (byValue)
+        {
+            if (positionUsePropertyBox && positionPropertyBox)
+            {
+                teleportPosition = positionPropertyBox.value_v3;
+            }
+            if (rotationUsePropertyBox && rotationPropertyBox)
+            {
+                teleportRotation = rotationPropertyBox.value_v3;
+            }
+        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])
@@ -187,8 +233,24 @@ public class T23_TeleportObject : UdonSharpBehaviour
 
     private void Execute(GameObject target)
     {
-        target.transform.position = teleportLocation.position;
-        target.transform.rotation = teleportLocation.rotation;
+        if (byValue)
+        {
+            if (local)
+            {
+                target.transform.localPosition = teleportPosition;
+                target.transform.localRotation = Quaternion.Euler(teleportRotation);
+            }
+            else
+            {
+                target.transform.position = teleportPosition;
+                target.transform.rotation = Quaternion.Euler(teleportRotation);
+            }
+        }
+        else
+        {
+            target.transform.position = teleportLocation.position;
+            target.transform.rotation = teleportLocation.rotation;
+        }
 
         if (removeVelocity)
         {

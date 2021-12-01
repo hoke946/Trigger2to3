@@ -18,6 +18,10 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
 
     [SerializeField]
     private float impulse = 3;
+    [SerializeField]
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -69,10 +73,12 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            prop = serializedObject.FindProperty("impulse");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            T23_EditorUtility.PropertyBoxField(serializedObject, "impulse", "propertyBox", "usePropertyBox");
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -137,6 +143,10 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            impulse = propertyBox.value_f;
+        }
         Networking.LocalPlayer.SetJumpImpulse(impulse);
     }
 

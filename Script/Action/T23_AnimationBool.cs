@@ -28,9 +28,10 @@ public class T23_AnimationBool : UdonSharpBehaviour
     [SerializeField]
     [Tooltip("if not toggle")]
     private bool operation = true;
-
     [SerializeField]
-    private bool takeOwnership;
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -111,16 +112,17 @@ public class T23_AnimationBool : UdonSharpBehaviour
             EditorGUILayout.PropertyField(prop);
 
             EditorGUI.BeginChangeCheck();
-            operation = (ToggleOperation)EditorGUILayout.EnumPopup("Operation", GetOperation());
+            T23_EditorUtility.PropertyBoxField(serializedObject, "operation", "propertyBox", "usePropertyBox", () => operation = (ToggleOperation)EditorGUILayout.EnumPopup("Operation", GetOperation()));
+            if (body.usePropertyBox && body.toggle) { serializedObject.FindProperty("toggle").boolValue = false; }
             if (EditorGUI.EndChangeCheck())
             {
                 SelectOperation();
             }
-
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -217,11 +219,6 @@ public class T23_AnimationBool : UdonSharpBehaviour
             }
         }
 
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
-
         this.enabled = false;
     }
 
@@ -232,14 +229,14 @@ public class T23_AnimationBool : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            operation = propertyBox.value_b;
+        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])
             {
-                if (takeOwnership)
-                {
-                    Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
-                }
                 Execute(recievers[i]);
             }
         }

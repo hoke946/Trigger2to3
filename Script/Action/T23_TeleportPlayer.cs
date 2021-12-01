@@ -17,7 +17,24 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
     public const bool isAction = true;
 
     [SerializeField]
+    private bool byValue;
+
+    [SerializeField]
     private Transform teleportLocation;
+
+    [SerializeField]
+    private Vector3 teleportPosition;
+    [SerializeField]
+    private T23_PropertyBox positionPropertyBox;
+    [SerializeField]
+    private bool positionUsePropertyBox;
+
+    [SerializeField]
+    private Vector3 teleportRotation;
+    [SerializeField]
+    private T23_PropertyBox rotationPropertyBox;
+    [SerializeField]
+    private bool rotationUsePropertyBox;
 
     [SerializeField]
     private VRC_SceneDescriptor.SpawnOrientation teleportOrientation;
@@ -75,14 +92,27 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            prop = serializedObject.FindProperty("teleportLocation");
+            prop = serializedObject.FindProperty("byValue");
             EditorGUILayout.PropertyField(prop);
+            if (body.byValue)
+            {
+                T23_EditorUtility.PropertyBoxField(serializedObject, "teleportPosition", "positionPropertyBox", "positionUsePropertyBox");
+                T23_EditorUtility.PropertyBoxField(serializedObject, "teleportRotation", "rotationPropertyBox", "rotationUsePropertyBox");
+            }
+            else
+            {
+                prop = serializedObject.FindProperty("teleportLocation");
+                EditorGUILayout.PropertyField(prop);
+            }
             prop = serializedObject.FindProperty("teleportOrientation");
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("lerpOnRemote");
             EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -101,6 +131,17 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
             }
         }
 
+        if (byValue)
+        {
+            if (positionUsePropertyBox && positionPropertyBox)
+            {
+                teleportPosition = positionPropertyBox.value_v3;
+            }
+            if (rotationUsePropertyBox && rotationPropertyBox)
+            {
+                teleportRotation = rotationPropertyBox.value_v3;
+            }
+        }
         if (broadcastLocal)
         {
             broadcastLocal.AddActions(this, priority);
@@ -147,7 +188,14 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
             return;
         }
 
-        Networking.LocalPlayer.TeleportTo(teleportLocation.position, teleportLocation.rotation, teleportOrientation, lerpOnRemote);
+        if (byValue)
+        {
+            Networking.LocalPlayer.TeleportTo(teleportPosition, Quaternion.Euler(teleportRotation), teleportOrientation, lerpOnRemote);
+        }
+        else
+        {
+            Networking.LocalPlayer.TeleportTo(teleportLocation.position, teleportLocation.rotation, teleportOrientation, lerpOnRemote);
+        }
     }
 
     private bool RandomJudgement()

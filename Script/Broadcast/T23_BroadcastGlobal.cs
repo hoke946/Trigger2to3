@@ -106,6 +106,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             if (master)
             {
                 GUILayout.Box("[#" + body.groupID.ToString() + "] " + body.title, T23_EditorUtility.HeadlineStyle());
+                master.randomize = body.randomize;
             }
             else
             {

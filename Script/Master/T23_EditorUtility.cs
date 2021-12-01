@@ -192,7 +192,7 @@ public class T23_EditorUtility : Editor
         }
         foreach (var commonBuffer in commonBuffers)
         {
-            commonBuffer.broadcasts = T23_EditorUtility.TakeCommonBuffersRelate(commonBuffer);
+            commonBuffer.broadcasts = TakeCommonBuffersRelate(commonBuffer);
             UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
         }
     }
@@ -218,6 +218,83 @@ public class T23_EditorUtility : Editor
         }
         commonBuffer.broadcasts = TakeCommonBuffersRelate(commonBuffer);
         UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
+    }
+
+    public static void PropertyBoxField(SerializedObject serializedObject, string constFieldName, string propertyBoxFieldName, string switchFieldName, Action edit = null)
+    {
+        EditorGUILayout.BeginHorizontal();
+        var switchField = serializedObject.FindProperty(switchFieldName);
+        if (switchField.boolValue)
+        {
+            var propertyBoxField = serializedObject.FindProperty(propertyBoxFieldName);
+            propertyBoxField.objectReferenceValue = EditorGUILayout.ObjectField(ToUnityFieldName(constFieldName), propertyBoxField.objectReferenceValue, typeof(T23_PropertyBox), true);
+        }
+        else
+        {
+            if (edit == null)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty(constFieldName));
+            }
+            else
+            {
+                edit();
+            }
+        }
+        //EditorGUILayout.BeginHorizontal();
+        //GUILayout.Space(EditorGUIUtility.currentViewWidth - 150);
+        string buttonLabel = switchField.boolValue ? "to Constant" : "to PropertyBox";
+        var buttonStyle = new GUIStyle(GUI.skin.button);
+        buttonStyle.fontSize = 10;
+        buttonStyle.stretchWidth = false;
+        Color oldBackgroundColor = GUI.backgroundColor;
+        GUI.backgroundColor = Color.green;
+        if (GUILayout.Button(buttonLabel, buttonStyle))
+        {
+            switchField.boolValue = !switchField.boolValue;
+            serializedObject.ApplyModifiedProperties();
+            serializedObject.Update();
+        }
+        GUI.backgroundColor = oldBackgroundColor;
+        EditorGUILayout.EndHorizontal();
+        if (switchField.boolValue)
+        {
+            var propertyBoxField = serializedObject.FindProperty(propertyBoxFieldName);
+            if (propertyBoxField.objectReferenceValue)
+            {
+                var propertyBox = (T23_PropertyBox)propertyBoxField.objectReferenceValue;
+                var constField = serializedObject.FindProperty(constFieldName);
+                bool unsuitable = false;
+                if (constField.propertyType != SerializedPropertyType.String)
+                {
+                    if (propertyBox.valueType == 0 && constField.propertyType != SerializedPropertyType.Boolean) { unsuitable = true; }
+                    if (propertyBox.valueType == 1 && constField.propertyType != SerializedPropertyType.Integer) { unsuitable = true; }
+                    if (propertyBox.valueType == 2 && constField.propertyType != SerializedPropertyType.Float) { unsuitable = true; }
+                    if (propertyBox.valueType == 3 && constField.propertyType != SerializedPropertyType.Vector3) { unsuitable = true; }
+                    if (propertyBox.valueType == 4 && constField.propertyType != SerializedPropertyType.String) { unsuitable = true; }
+                }
+                if (unsuitable)
+                {
+                    EditorGUILayout.HelpBox("PropertyBox の ValueType が不適合です", MessageType.Error);
+                }
+            }
+        }
+    }
+
+    public static string ToUnityFieldName(string before)
+    {
+        var _array = before.ToCharArray();
+        _array[0] = char.ToUpper(_array[0]);
+        var _ins = new List<int>();
+        for (int i = _array.Length - 1; i > 0; i--)
+        {
+            if (char.IsUpper(_array[i])) { _ins.Add(i); }
+        }
+        var _list = new List<char>(_array);
+        for (int i = 0; i < _ins.Count; i++)
+        {
+            _list.Insert(_ins[i], ' ');
+        }
+        return new string(_list.ToArray());
     }
 }
 #endif

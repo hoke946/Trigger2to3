@@ -22,9 +22,10 @@ public class T23_SetUIText : UdonSharpBehaviour
 
     [SerializeField]
     private string text;
-
     [SerializeField]
-    private bool takeOwnership;
+    private T23_PropertyBox propertyBox;
+    [SerializeField]
+    private bool usePropertyBox;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -93,12 +94,12 @@ public class T23_SetUIText : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
-            prop = serializedObject.FindProperty("text");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            T23_EditorUtility.PropertyBoxField(serializedObject, "text", "propertyBox", "usePropertyBox");
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -153,11 +154,6 @@ public class T23_SetUIText : UdonSharpBehaviour
             }
         }
 
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
-
         this.enabled = false;
     }
 
@@ -168,14 +164,14 @@ public class T23_SetUIText : UdonSharpBehaviour
             return;
         }
 
+        if (usePropertyBox && propertyBox)
+        {
+            text = propertyBox.value_s;
+        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])
             {
-                if (takeOwnership)
-                {
-                    Networking.SetOwner(Networking.LocalPlayer, recievers[i].gameObject);
-                }
                 Execute(recievers[i]);
             }
         }

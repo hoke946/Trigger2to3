@@ -130,7 +130,8 @@ public class T23_AudioBank : UdonSharpBehaviour
             }
             else
             {
-                serializedObject.FindProperty("onPlayCustomName").stringValue = "";
+                prop = serializedObject.FindProperty("onPlayCustomName");
+                EditorGUILayout.PropertyField(prop);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -149,7 +150,8 @@ public class T23_AudioBank : UdonSharpBehaviour
             }
             else
             {
-                serializedObject.FindProperty("onStopCustomName").stringValue = "";
+                prop = serializedObject.FindProperty("onStopCustomName");
+                EditorGUILayout.PropertyField(prop);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -168,7 +170,8 @@ public class T23_AudioBank : UdonSharpBehaviour
             }
             else
             {
-                serializedObject.FindProperty("onChangeCustomName").stringValue = "";
+                prop = serializedObject.FindProperty("onChangeCustomName");
+                EditorGUILayout.PropertyField(prop);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -197,7 +200,7 @@ public class T23_AudioBank : UdonSharpBehaviour
             foreach (var udon in udons)
             {
                 UdonSharpBehaviour usharp = UdonSharpEditorUtility.FindProxyBehaviour(udon);
-                if (usharp.GetUdonSharpComponent<T23_CustomTrigger>())
+                if (usharp && usharp.GetUdonSharpComponent<T23_CustomTrigger>())
                 {
                     var nameField = usharp.GetProgramVariable("Name") as string;
                     if (nameField != null)

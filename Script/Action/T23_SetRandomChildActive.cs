@@ -22,9 +22,6 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
     [SerializeField]
     private bool operation = true;
 
-    [SerializeField]
-    private bool takeOwnership;
-
     private int seedOffset = 100;
 
     [SerializeField, Range(0, 1)]
@@ -103,10 +100,11 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
             prop = serializedObject.FindProperty("operation");
             prop.boolValue = (BoolOperation)EditorGUILayout.EnumPopup("Operation", (BoolOperation)System.Convert.ToInt32(body.operation)) == BoolOperation.True;
 
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -161,11 +159,6 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
             }
         }
 
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
-
         this.enabled = false;
     }
 
@@ -180,14 +173,6 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
         {
             if (recievers[i])
             {
-                if (takeOwnership)
-                {
-                    Networking.SetOwner(Networking.LocalPlayer, recievers[i]);
-                    for (int cidx = 0; cidx < recievers[i].transform.childCount; cidx++)
-                    {
-                        Networking.SetOwner(Networking.LocalPlayer, recievers[i].transform.GetChild(cidx).gameObject);
-                    }
-                }
                 Execute(recievers[i]);
             }
         }

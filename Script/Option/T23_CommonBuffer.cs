@@ -106,7 +106,7 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                 var broadcast = broadcasts[broadcastIdx[buffering_count]];
                 if (!broadcast.gameObject.activeInHierarchy)
                 {
-                    broadcast.gameObject.SetActive(true);
+                    DeepActivate(broadcast.gameObject, broadcast.gameObject);
                     if (!broadcast.gameObject.activeInHierarchy)
                     {
                         onHoldBuffer = AddIntArray(onHoldBuffer, broadcastIdx[buffering_count]);
@@ -124,6 +124,18 @@ public class T23_CommonBuffer : UdonSharpBehaviour
                 broadcast.SetSynced();
             }
             synced = true;
+        }
+    }
+
+    private void DeepActivate(GameObject current, GameObject target)
+    {
+        current.SetActive(current);
+        if (!target.activeInHierarchy)
+        {
+            if (current.transform.parent)
+            {
+                DeepActivate(current.transform.parent.gameObject, target);
+            }
         }
     }
 

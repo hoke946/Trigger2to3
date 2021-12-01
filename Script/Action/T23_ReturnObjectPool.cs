@@ -90,8 +90,11 @@ public class T23_ReturnObjectPool : UdonSharpBehaviour
             prop = serializedObject.FindProperty("objectPool");
             EditorGUILayout.PropertyField(prop);
             EditorGUILayout.HelpBox("無条件でObject PoolのOwnershipを取得します。", MessageType.Info);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

@@ -3,13 +3,15 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common.Interfaces;
+using VRC.SDK3.Components;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-public class T23_SetChildrenActive : UdonSharpBehaviour
+public class T23_ActiveConditionalTrigger : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
@@ -18,13 +20,6 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
 
     [SerializeField]
     private GameObject[] recievers;
-
-    [SerializeField]
-    private bool operation = true;
-    [SerializeField]
-    private T23_PropertyBox propertyBox;
-    [SerializeField]
-    private bool usePropertyBox;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;
@@ -36,25 +31,19 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
     private T23_BroadcastGlobal broadcastGlobal;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_SetChildrenActive))]
-    internal class T23_SetChildrenActiveEditor : Editor
+    [CustomEditor(typeof(T23_ActiveConditionalTrigger))]
+    internal class T23_ActiveConditionalTriggerEditor : Editor
     {
-        T23_SetChildrenActive body;
+        T23_ActiveConditionalTrigger body;
         T23_Master master;
 
         SerializedProperty prop;
 
         private ReorderableList recieverReorderableList;
 
-        public enum BoolOperation
-        {
-            True = 1,
-            False = 0
-        }
-
         void OnEnable()
         {
-            body = target as T23_SetChildrenActive;
+            body = target as T23_ActiveConditionalTrigger;
 
             master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
         }
@@ -98,8 +87,6 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
                 };
             }
             recieverReorderableList.DoLayoutList();
-
-            T23_EditorUtility.PropertyBoxField(serializedObject, "operation", "propertyBox", "usePropertyBox", () => serializedObject.FindProperty("operation").boolValue = (BoolOperation)EditorGUILayout.EnumPopup("Operation", (BoolOperation)System.Convert.ToInt32(body.operation)) == BoolOperation.True);
 
             if (!master || master.randomize)
             {
@@ -159,7 +146,6 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
                 }
             }
         }
-
         this.enabled = false;
     }
 
@@ -170,10 +156,6 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
             return;
         }
 
-        if (usePropertyBox && propertyBox)
-        {
-            operation = propertyBox.value_b;
-        }
         for (int i = 0; i < recievers.Length; i++)
         {
             if (recievers[i])
@@ -185,9 +167,10 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
 
     private void Execute(GameObject target)
     {
-        for (int cidx = 0; cidx < target.transform.childCount; cidx++)
+        T23_ConditionalTrigger[] conditionalTriggers = target.GetComponents<T23_ConditionalTrigger>();
+        for (int i = 0; i < conditionalTriggers.Length; i++)
         {
-            target.transform.GetChild(cidx).gameObject.SetActive(operation);
+            conditionalTriggers[i].Judgement();
         }
     }
 

@@ -34,6 +34,7 @@ public class T23_Master : MonoBehaviour
     public Component[] components = new Component[0];
     public bool hasObjectSync = true;
     public bool reliable = false;
+    public bool randomize = false;
 
     public int turn = 0;
     public int maxturn = 0;

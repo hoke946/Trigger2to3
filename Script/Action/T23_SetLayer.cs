@@ -22,9 +22,6 @@ public class T23_SetLayer : UdonSharpBehaviour
     [SerializeField]
     private int layer;
 
-    [SerializeField]
-    private bool takeOwnership;
-
     [SerializeField, Range(0, 1)]
     private float randomAvg;
 
@@ -94,10 +91,11 @@ public class T23_SetLayer : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("layer");
             prop.intValue = EditorGUILayout.LayerField("Layer", body.layer);
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -152,11 +150,6 @@ public class T23_SetLayer : UdonSharpBehaviour
             }
         }
 
-#if UNITY_EDITOR
-        // local simulation
-        takeOwnership = false;
-#endif
-
         this.enabled = false;
     }
 
@@ -169,10 +162,6 @@ public class T23_SetLayer : UdonSharpBehaviour
 
         for (int i = 0; i < recievers.Length; i++)
         {
-            if (takeOwnership)
-            {
-                Networking.SetOwner(Networking.LocalPlayer, recievers[i]);
-            }
             Execute(recievers[i]);
         }
     }

@@ -91,8 +91,11 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
             EditorGUILayout.PropertyField(prop);
             prop = serializedObject.FindProperty("ownershipControl");
             prop.intValue = System.Convert.ToInt32(EditorGUILayout.EnumPopup("Ownership Control", (OwnershipControl)body.ownershipControl));
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

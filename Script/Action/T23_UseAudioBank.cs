@@ -96,8 +96,11 @@ public class T23_UseAudioBank : UdonSharpBehaviour
                 EditorGUILayout.PropertyField(prop);
             }
 
-            prop = serializedObject.FindProperty("randomAvg");
-            EditorGUILayout.PropertyField(prop);
+            if (!master || master.randomize)
+            {
+                prop = serializedObject.FindProperty("randomAvg");
+                EditorGUILayout.PropertyField(prop);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
