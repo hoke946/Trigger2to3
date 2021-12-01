@@ -389,7 +389,7 @@ public class T23_PropertyBox : UdonSharpBehaviour
 
                 if (body.valueType == 4)
                 {
-                    List<string> detailList = new List<string>(SpotDetail_v3_f);
+                    List<string> detailList = new List<string>(SpotDetail_s);
                     var detailIndex = EditorGUILayout.Popup("Spot Detail", detailList.IndexOf(body.spotDetail), SpotDetail_s);
                     serializedObject.FindProperty("spotDetail").stringValue = detailIndex >= 0 ? SpotDetail_s[detailIndex] : "";
                     if (serializedObject.FindProperty("spotDetail").stringValue == "OneLetter")
