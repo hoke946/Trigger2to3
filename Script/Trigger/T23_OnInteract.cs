@@ -65,7 +65,7 @@ public class T23_OnInteract : UdonSharpBehaviour
                     UdonBehaviour behaviour = UdonSharpEditorUtility.GetBackingUdonBehaviour((UdonSharpBehaviour)target);
                     master.interactText = behaviour.interactText;
                     master.proximity = behaviour.proximity;
-                    master.OrderComponents(false);
+                    master.OrderComponents();
                 }
             }
 

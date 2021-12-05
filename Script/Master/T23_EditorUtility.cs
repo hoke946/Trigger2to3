@@ -73,7 +73,8 @@ public class T23_EditorUtility : Editor
             string swapTitle = titles[c - 1];
             titles[c - 1] = currentTitle;
             titles[c] = swapTitle;
-            master.OrderComponents(true);
+            master.OrderComponents();
+            master.shouldMoveComponents = true;
         }
         EditorGUI.EndDisabledGroup();
         EditorGUI.BeginDisabledGroup(c == titles.Count - 1);
@@ -82,7 +83,8 @@ public class T23_EditorUtility : Editor
             string swapTitle = titles[c + 1];
             titles[c + 1] = currentTitle;
             titles[c] = swapTitle;
-            master.OrderComponents(true);
+            master.OrderComponents();
+            master.shouldMoveComponents = true;
         }
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndHorizontal();

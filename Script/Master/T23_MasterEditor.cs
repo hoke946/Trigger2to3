@@ -164,12 +164,43 @@ internal class T23_MasterEditor : Editor
         if (EditorGUI.EndChangeCheck())
         {
             serializedObject.ApplyModifiedProperties();
-            master.OrderComponents(false);
+            master.OrderComponents();
             serializedObject.Update();
         }
         if (master.hasObjectSync)
         {
             EditorGUILayout.HelpBox("VRC_ObjectSync が存在するため、Synchronize Method は Continuous に設定されています。", MessageType.Info);
+        }
+
+        if (master.shouldMoveComponents)
+        {
+            Object prefab = PrefabUtility.GetCorrespondingObjectFromSource(master.gameObject);
+            string msg = "";
+            if (prefab == null)
+            {
+                if (master.MoveComponents())
+                {
+                    master.shouldMoveComponents = false;
+                }
+                else
+                {
+                    msg = "コンポーネントが正しく整列できません。";
+                }
+            }
+            else
+            {
+                msg = "コンポーネントがPrefab内にある場合、整列できません。";
+            }
+            if (msg != "")
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.HelpBox(msg, MessageType.Warning);
+                if (GUILayout.Button("Clear"))
+                {
+                    master.shouldMoveComponents = false;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         serializedObject.ApplyModifiedProperties();

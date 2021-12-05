@@ -39,6 +39,8 @@ public class T23_Master : MonoBehaviour
     public int turn = 0;
     public int maxturn = 0;
 
+    public bool shouldMoveComponents;
+
     public void SetupGroup()
     {
         if (groupID == -1)
@@ -70,6 +72,7 @@ public class T23_Master : MonoBehaviour
         Component[] newComponents = GetSurfaceComponents();
         if (newComponents.Length != components.Length)
         {
+            modified = true;
             changed = true;
         }
         maxturn = 0;
@@ -107,7 +110,8 @@ public class T23_Master : MonoBehaviour
 
         if (modified)
         {
-            OrderComponents(changed);
+            OrderComponents();
+            shouldMoveComponents = changed;
         }
     }
 
@@ -124,7 +128,8 @@ public class T23_Master : MonoBehaviour
         ComponentSet set = AddUdonComponent(program, broadcastTitles);
         broadcastSet = set;
         broadcastTitles.Add(set.title);
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
     }
 
     public void JoinBroadcast(UdonSharpBehaviour baseComponent)
@@ -138,7 +143,8 @@ public class T23_Master : MonoBehaviour
         ComponentSet set = JoinUdonComponent(baseComponent, broadcastTitles);
         broadcastSet = set;
         broadcastTitles.Add(set.title);
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
 
         UdonBehaviour udon = UdonSharpEditorUtility.GetBackingUdonBehaviour(baseComponent);
         DestroyImmediate(udon);
@@ -170,7 +176,8 @@ public class T23_Master : MonoBehaviour
         ComponentSet set = AddUdonComponent(program, triggerTitles);
         triggerSet.Add(set);
         triggerTitles.Add(set.title);
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
     }
 
     public void JoinTrigger(UdonSharpBehaviour baseComponent)
@@ -178,7 +185,8 @@ public class T23_Master : MonoBehaviour
         ComponentSet set = JoinUdonComponent(baseComponent, triggerTitles);
         triggerSet.Add(set);
         triggerTitles.Add(set.title);
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
 
         UdonBehaviour udon = UdonSharpEditorUtility.GetBackingUdonBehaviour(baseComponent);
         DestroyImmediate(udon);
@@ -202,7 +210,8 @@ public class T23_Master : MonoBehaviour
             }
             triggerSet.Remove(set);
         }
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
     }
 
     public void AddAction(UdonSharpProgramAsset program)
@@ -210,7 +219,8 @@ public class T23_Master : MonoBehaviour
         ComponentSet set = AddUdonComponent(program, actionTitles);
         actionSet.Add(set);
         actionTitles.Add(set.title);
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
     }
 
     public void JoinAction(UdonSharpBehaviour baseComponent)
@@ -218,7 +228,8 @@ public class T23_Master : MonoBehaviour
         ComponentSet set = JoinUdonComponent(baseComponent, actionTitles);
         actionSet.Add(set);
         actionTitles.Add(set.title);
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
 
         UdonBehaviour udon = UdonSharpEditorUtility.GetBackingUdonBehaviour(baseComponent);
         DestroyImmediate(udon);
@@ -242,7 +253,8 @@ public class T23_Master : MonoBehaviour
             }
             actionSet.Remove(set);
         }
-        OrderComponents(true);
+        OrderComponents();
+        shouldMoveComponents = true;
     }
 
     private ComponentSet AddUdonComponent(UdonSharpProgramAsset program, List<string> titleArray)
@@ -345,16 +357,12 @@ public class T23_Master : MonoBehaviour
         return new ComponentSet();
     }
 
-    public void OrderComponents(bool moveComponent)
+    public void OrderComponents()
     {
         int correctidx = GetComponentIndex(components, this);
         List<Component> orderList = new List<Component>();
         if (broadcastSet.component)
         {
-            if (moveComponent)
-            {
-                AlignComponent(broadcastSet.component, ref correctidx);
-            }
             orderList.Add(broadcastSet.component);
         }
         else
@@ -369,10 +377,6 @@ public class T23_Master : MonoBehaviour
             ComponentSet set = GetComponentSet(triggerSet, title);
             if (set.component)
             {
-                if (moveComponent)
-                {
-                    AlignComponent(set.component, ref correctidx);
-                }
                 orderList.Add(set.component);
             }
             else
@@ -392,10 +396,6 @@ public class T23_Master : MonoBehaviour
             ComponentSet set = GetComponentSet(actionSet, title);
             if (set.component)
             {
-                if (moveComponent)
-                {
-                    AlignComponent(set.component, ref correctidx);
-                }
                 orderList.Add(set.component);
             }
             else
@@ -418,6 +418,42 @@ public class T23_Master : MonoBehaviour
         }
     }
 
+    public bool MoveComponents()
+    {
+        int correctidx = GetComponentIndex(components, this);
+        bool success = true;
+        if (broadcastSet.component)
+        {
+            if (!AlignComponent(broadcastSet.component, ref correctidx))
+            {
+                success = false;
+            }
+        }
+        foreach (string title in triggerTitles)
+        {
+            ComponentSet set = GetComponentSet(triggerSet, title);
+            if (set.component)
+            {
+                if (!AlignComponent(set.component, ref correctidx))
+                {
+                    success = false;
+                }
+            }
+        }
+        foreach (string title in actionTitles)
+        {
+            ComponentSet set = GetComponentSet(actionSet, title);
+            if (set.component)
+            {
+                if (!AlignComponent(set.component, ref correctidx))
+                {
+                    success = false;
+                }
+            }
+        }
+        return success;
+    }
+
     private Component[] GetSurfaceComponents()
     {
         List<string> usharpClass = new List<string>();
@@ -433,11 +469,12 @@ public class T23_Master : MonoBehaviour
         return GetComponents<Component>().Where(o => !usharpClass.Contains(o.GetType().ToString())).ToArray();
     }
 
-    private void AlignComponent(Component target, ref int correctidx)
+    private bool AlignComponent(Component target, ref int correctidx)
     {
         correctidx++;
         int index = GetComponentIndex(components, target);
 
+        bool success = false;
         while (index != correctidx)
         {
             if (index < correctidx)
@@ -456,6 +493,12 @@ public class T23_Master : MonoBehaviour
             }
         }
         components = GetSurfaceComponents();
+        index = GetComponentIndex(components, target);
+        if (index == correctidx)
+        {
+            success = true;
+        }
+        return success;
     }
 
     private int GetComponentIndex(Component[] array, Component target)
