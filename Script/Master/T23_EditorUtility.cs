@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEditor.SceneManagement;
+using UnityEditor.Experimental.SceneManagement;
 using VRC.Udon;
 using UdonSharp;
 using UdonSharpEditor;
@@ -163,7 +164,17 @@ public class T23_EditorUtility : Editor
     public static T23_BroadcastGlobal[] TakeCommonBuffersRelate(T23_CommonBuffer commonBuffer)
     {
         List<T23_BroadcastGlobal> broadcastGlobals = new List<T23_BroadcastGlobal>();
-        var rootObjs = EditorSceneManager.GetActiveScene().GetRootGameObjects();
+        GameObject[] rootObjs = null;
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        if (stage != null)
+        {
+            rootObjs = new GameObject[1];
+            rootObjs[0] = stage.prefabContentsRoot;
+        }
+        else
+        {
+            rootObjs = EditorSceneManager.GetActiveScene().GetRootGameObjects();
+        }
         if (rootObjs.Length > 0)
         {
             foreach (var rootObj in rootObjs)
@@ -188,7 +199,18 @@ public class T23_EditorUtility : Editor
     public static void UpdateAllCommonBuffersRelate()
     {
         var commonBuffers = new List<T23_CommonBuffer>();
-        foreach (var rootObj in EditorSceneManager.GetActiveScene().GetRootGameObjects())
+        GameObject[] rootObjs = null;
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        if (stage != null)
+        {
+            rootObjs = new GameObject[1];
+            rootObjs[0] = stage.prefabContentsRoot;
+        }
+        else
+        {
+            rootObjs = EditorSceneManager.GetActiveScene().GetRootGameObjects();
+        }
+        foreach (var rootObj in rootObjs)
         {
             commonBuffers.AddRange(rootObj.GetComponentsInChildren<T23_CommonBuffer>(true));
         }
