@@ -108,8 +108,6 @@ public class T23_AudioPlay : UdonSharpBehaviour
                 SelectOperation();
             }
 
-            prop = serializedObject.FindProperty("takeOwnership");
-            EditorGUILayout.PropertyField(prop);
             if (!master || master.randomize)
             {
                 prop = serializedObject.FindProperty("randomAvg");

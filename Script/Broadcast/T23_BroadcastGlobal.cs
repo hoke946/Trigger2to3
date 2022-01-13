@@ -49,6 +49,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private float timer = 0;
     private int actionCount = 0;
     private int buffering_count = 0;
+    private int missing_count = 0;
 
     [HideInInspector]
     public float randomTotal;
@@ -234,7 +235,15 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     public bool UnconditionalFire()
     {
-        if (actions == null) { return false; }
+        if (actions == null)
+        {
+            missing_count++;
+            if (missing_count > 3)
+            {
+                actions = new UdonSharpBehaviour[0];
+            }
+            return false;
+        }
 
         actionCount++;
         if (randomize && randomTotal > 0)
