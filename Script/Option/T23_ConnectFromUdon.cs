@@ -46,6 +46,7 @@ public class T23_ConnectFromUdon : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("target");
             EditorGUILayout.PropertyField(prop);
+            /*
             List<string> customNameList = new List<string>();
             if (body.target)
             {
@@ -61,6 +62,7 @@ public class T23_ConnectFromUdon : UdonSharpBehaviour
                 serializedObject.FindProperty("customTriggerName").stringValue = index >= 0 ? customNameList[index] : "";
             }
             else
+            */
             {
                 prop = serializedObject.FindProperty("customTriggerName");
                 EditorGUILayout.PropertyField(prop);
@@ -69,6 +71,7 @@ public class T23_ConnectFromUdon : UdonSharpBehaviour
             serializedObject.ApplyModifiedProperties();
         }
 
+        /*
         private List<string> GetCustomNameList(GameObject targetObject)
         {
             List<string> list = new List<string>();
@@ -90,6 +93,7 @@ public class T23_ConnectFromUdon : UdonSharpBehaviour
             }
             return list;
         }
+        */
     }
 #endif
 

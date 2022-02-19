@@ -118,6 +118,7 @@ public class T23_AudioBank : UdonSharpBehaviour
             EditorGUILayout.BeginHorizontal();
             prop = serializedObject.FindProperty("onPlay");
             EditorGUILayout.PropertyField(prop);
+            /*
             List<string> onPlayCustomNameList = new List<string>();
             if (body.onPlay)
             {
@@ -129,15 +130,17 @@ public class T23_AudioBank : UdonSharpBehaviour
                 serializedObject.FindProperty("onPlayCustomName").stringValue = index >= 0 ? onPlayCustomNameList[index] : "";
             }
             else
+            */
             {
                 prop = serializedObject.FindProperty("onPlayCustomName");
-                EditorGUILayout.PropertyField(prop);
+                EditorGUILayout.PropertyField(prop, new GUIContent(""));
             }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             prop = serializedObject.FindProperty("onStop");
             EditorGUILayout.PropertyField(prop);
+            /*
             List<string> onStopCustomNameList = new List<string>();
             if (body.onStop)
             {
@@ -149,15 +152,17 @@ public class T23_AudioBank : UdonSharpBehaviour
                 serializedObject.FindProperty("onStopCustomName").stringValue = index >= 0 ? onStopCustomNameList[index] : "";
             }
             else
+            */
             {
                 prop = serializedObject.FindProperty("onStopCustomName");
-                EditorGUILayout.PropertyField(prop);
+                EditorGUILayout.PropertyField(prop, new GUIContent(""));
             }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             prop = serializedObject.FindProperty("onChange");
             EditorGUILayout.PropertyField(prop);
+            /*
             List<string> onChangeCustomNameList = new List<string>();
             if (body.onChange)
             {
@@ -169,9 +174,10 @@ public class T23_AudioBank : UdonSharpBehaviour
                 serializedObject.FindProperty("onChangeCustomName").stringValue = index >= 0 ? onChangeCustomNameList[index] : "";
             }
             else
+            */
             {
                 prop = serializedObject.FindProperty("onChangeCustomName");
-                EditorGUILayout.PropertyField(prop);
+                EditorGUILayout.PropertyField(prop, new GUIContent(""));
             }
             EditorGUILayout.EndHorizontal();
 
@@ -193,6 +199,7 @@ public class T23_AudioBank : UdonSharpBehaviour
             serializedObject.ApplyModifiedProperties();
         }
 
+        /*
         private List<string> GetCustomNameList(GameObject targetObject)
         {
             List<string> list = new List<string>();
@@ -214,6 +221,7 @@ public class T23_AudioBank : UdonSharpBehaviour
             }
             return list;
         }
+        */
     }
 #endif
 

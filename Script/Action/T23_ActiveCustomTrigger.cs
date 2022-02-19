@@ -91,6 +91,7 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
             }
             recieverReorderableList.DoLayoutList();
 
+            /*
             List<string> customNameList = new List<string>();
             if (body.recievers != null)
             {
@@ -108,6 +109,7 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
                 serializedObject.FindProperty("Name").stringValue = index >= 0 ? customNameList[index] : "";
             }
             else
+            */
             {
                 prop = serializedObject.FindProperty("Name");
                 EditorGUILayout.PropertyField(prop);
@@ -121,6 +123,7 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
             serializedObject.ApplyModifiedProperties();
         }
 
+        /*
         private List<string> GetCustomNameList(GameObject targetObject)
         {
             List<string> list = new List<string>();
@@ -142,6 +145,7 @@ public class T23_ActiveCustomTrigger : UdonSharpBehaviour
             }
             return list;
         }
+        */
     }
 #endif
 
