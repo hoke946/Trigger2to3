@@ -16,6 +16,8 @@ public class T23_CommonBuffer : UdonSharpBehaviour
 {
     public T23_BroadcastGlobal[] broadcasts;
 
+    public bool autoJoin = true;
+
     [UdonSynced(UdonSyncMode.None)]
     private bool syncReady;
 
@@ -68,6 +70,8 @@ public class T23_CommonBuffer : UdonSharpBehaviour
             {
                 T23_EditorUtility.JoinAllBufferingBroadcasts(body);
             }
+            prop = serializedObject.FindProperty("autoJoin");
+            EditorGUILayout.PropertyField(prop);
 
             prop = serializedObject.FindProperty("broadcasts");
             EditorGUILayout.PropertyField(prop);

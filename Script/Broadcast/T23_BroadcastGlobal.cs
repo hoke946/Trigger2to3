@@ -33,6 +33,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     public bool randomize;
 
     public T23_CommonBuffer commonBuffer;
+    public bool commonBufferSearched;
 
     private UdonSharpBehaviour[] actions;
     private int[] priorities;
@@ -128,14 +129,35 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             prop = serializedObject.FindProperty("randomize");
             EditorGUILayout.PropertyField(prop);
 
-            EditorGUI.BeginChangeCheck();
-            prop = serializedObject.FindProperty("commonBuffer");
-            EditorGUILayout.PropertyField(prop);
-            if (EditorGUI.EndChangeCheck())
+            if (body.bufferType == (int)BufferType.Unbuffered)
             {
-                serializedObject.ApplyModifiedProperties();
-                serializedObject.Update();
-                T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                if (body.commonBuffer != null)
+                {
+                    body.commonBuffer = null;
+                    EditorApplication.delayCall += () => T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                }
+                body.commonBufferSearched = false;
+            }
+            else
+            {
+                EditorGUI.BeginChangeCheck();
+                prop = serializedObject.FindProperty("commonBuffer");
+                EditorGUILayout.PropertyField(prop);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    serializedObject.ApplyModifiedProperties();
+                    serializedObject.Update();
+                    EditorApplication.delayCall += () => T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                }
+                if (body.commonBuffer == null && !body.commonBufferSearched)
+                {
+                    body.commonBuffer = T23_EditorUtility.GetAutoJoinCommonBuffer(body);
+                    if (body.commonBuffer != null)
+                    {
+                        EditorApplication.delayCall += () => T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                    }
+                    body.commonBufferSearched = true;
+                }
             }
 
             serializedObject.ApplyModifiedProperties();

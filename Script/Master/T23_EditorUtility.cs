@@ -161,7 +161,7 @@ public class T23_EditorUtility : Editor
         return assetList;
     }
 
-    public static T23_BroadcastGlobal[] TakeCommonBuffersRelate(T23_CommonBuffer commonBuffer)
+    public static List<T23_BroadcastGlobal> GetAllBroadcastGlobals()
     {
         List<T23_BroadcastGlobal> broadcastGlobals = new List<T23_BroadcastGlobal>();
         GameObject[] rootObjs = null;
@@ -179,24 +179,23 @@ public class T23_EditorUtility : Editor
         {
             foreach (var rootObj in rootObjs)
             {
-                var broadcasts = rootObj.GetComponentsInChildren<T23_BroadcastGlobal>(true);
-                foreach (var broadcast in broadcasts)
+                var udons = rootObj.GetComponentsInChildren<UdonBehaviour>(true);
+                foreach (var udon in udons)
                 {
-                    if (UdonSharpEditorUtility.IsProxyBehaviour(broadcast))
-                    {
-                        var field = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
-                        if (field != null && field.transform.GetHierarchyPath() == commonBuffer.transform.GetHierarchyPath())
-                        {
-                            broadcastGlobals.Add(broadcast);
-                        }
-                    }
+                    var proxy = UdonSharpEditorUtility.FindProxyBehaviour(udon);
+                    if (proxy == null) { continue; }
+
+                    var broadcast = proxy as T23_BroadcastGlobal;
+                    if (broadcast == null) { continue; }
+
+                    broadcastGlobals.Add(broadcast);
                 }
             }
         }
-        return broadcastGlobals.ToArray();
+        return broadcastGlobals;
     }
 
-    public static void UpdateAllCommonBuffersRelate()
+    public static List<T23_CommonBuffer> GetAllCommonBuffers()
     {
         var commonBuffers = new List<T23_CommonBuffer>();
         GameObject[] rootObjs = null;
@@ -210,10 +209,44 @@ public class T23_EditorUtility : Editor
         {
             rootObjs = EditorSceneManager.GetActiveScene().GetRootGameObjects();
         }
-        foreach (var rootObj in rootObjs)
+        if (rootObjs.Length > 0)
         {
-            commonBuffers.AddRange(rootObj.GetComponentsInChildren<T23_CommonBuffer>(true));
+            foreach (var rootObj in rootObjs)
+            {
+                var udons = rootObj.GetComponentsInChildren<UdonBehaviour>(true);
+                foreach (var udon in udons)
+                {
+                    var proxy = UdonSharpEditorUtility.FindProxyBehaviour(udon);
+                    if (proxy == null) { continue; }
+
+                    var commonBuffer = proxy as T23_CommonBuffer;
+                    if (commonBuffer == null) { continue; }
+
+                    commonBuffers.Add(commonBuffer);
+                }
+            }
         }
+        return commonBuffers;
+    }
+
+    public static T23_BroadcastGlobal[] TakeCommonBuffersRelate(T23_CommonBuffer commonBuffer)
+    {
+        List<T23_BroadcastGlobal> broadcastGlobals = new List<T23_BroadcastGlobal>();
+        var allbroadcasts = GetAllBroadcastGlobals();
+        foreach (var broadcast in allbroadcasts)
+        {
+            var field = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
+            if (field != null && field.transform.GetHierarchyPath() == commonBuffer.transform.GetHierarchyPath())
+            {
+                broadcastGlobals.Add(broadcast);
+            }
+        }
+        return broadcastGlobals.ToArray();
+    }
+
+    public static void UpdateAllCommonBuffersRelate()
+    {
+        var commonBuffers = GetAllCommonBuffers();
         foreach (var commonBuffer in commonBuffers)
         {
             commonBuffer.broadcasts = TakeCommonBuffersRelate(commonBuffer);
@@ -223,25 +256,33 @@ public class T23_EditorUtility : Editor
 
     public static void JoinAllBufferingBroadcasts(T23_CommonBuffer commonBuffer)
     {
-        foreach (var rootObj in EditorSceneManager.GetActiveScene().GetRootGameObjects())
+        var broadcasts = GetAllBroadcastGlobals(); ;
+        foreach (var broadcast in broadcasts)
         {
-            var broadcasts = rootObj.GetComponentsInChildren<T23_BroadcastGlobal>(true);
-            foreach (var broadcast in broadcasts)
+            var commonBufferField = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
+            var bufferTypeField = broadcast.GetProgramVariable("bufferType") as int?;
+            if (commonBufferField == null && bufferTypeField != 0)
             {
-                if (UdonSharpEditorUtility.IsProxyBehaviour(broadcast))
-                {
-                    var commonBufferField = broadcast.GetProgramVariable("commonBuffer") as T23_CommonBuffer;
-                    var bufferTypeField = broadcast.GetProgramVariable("bufferType") as int?;
-                    if (commonBufferField == null && bufferTypeField != 0)
-                    {
-                        broadcast.commonBuffer = commonBuffer;
-                        UdonSharpEditorUtility.CopyProxyToUdon(broadcast);
-                    }
-                }
+                broadcast.commonBuffer = commonBuffer;
+                UdonSharpEditorUtility.CopyProxyToUdon(broadcast);
             }
         }
         commonBuffer.broadcasts = TakeCommonBuffersRelate(commonBuffer);
         UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
+    }
+
+    public static T23_CommonBuffer GetAutoJoinCommonBuffer(T23_BroadcastGlobal broadcast)
+    {
+        var commonBuffers = GetAllCommonBuffers();
+        foreach (var commonBuffer in commonBuffers)
+        {
+            if (commonBuffer.autoJoin)
+            {
+                broadcast.commonBuffer = commonBuffer;
+                return commonBuffer;
+            }
+        }
+        return null;
     }
 
     public static void PropertyBoxField(SerializedObject serializedObject, string constFieldName, string propertyBoxFieldName, string switchFieldName, Action edit = null)
