@@ -13,6 +13,8 @@ using System.IO;
 
 public class T23_EditorUtility : Editor
 {
+    private static bool commonBufferUpdateTask = false;
+
     public static void ShowTitle(string title)
     {
         Color backColor = Color.white;
@@ -246,12 +248,22 @@ public class T23_EditorUtility : Editor
 
     public static void UpdateAllCommonBuffersRelate()
     {
+        if (!commonBufferUpdateTask)
+        {
+            commonBufferUpdateTask = true;
+            EditorApplication.delayCall += () => UpdateAllCommonBuffersRelate_Delayed();
+        }
+    }
+
+    private static void UpdateAllCommonBuffersRelate_Delayed()
+    {
         var commonBuffers = GetAllCommonBuffers();
         foreach (var commonBuffer in commonBuffers)
         {
             commonBuffer.broadcasts = TakeCommonBuffersRelate(commonBuffer);
             UdonSharpEditorUtility.CopyProxyToUdon(commonBuffer);
         }
+        commonBufferUpdateTask = false;
     }
 
     public static void JoinAllBufferingBroadcasts(T23_CommonBuffer commonBuffer)

@@ -134,7 +134,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 if (body.commonBuffer != null)
                 {
                     body.commonBuffer = null;
-                    EditorApplication.delayCall += () => T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                    T23_EditorUtility.UpdateAllCommonBuffersRelate();
                 }
                 body.commonBufferSearched = false;
             }
@@ -147,20 +147,26 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 {
                     serializedObject.ApplyModifiedProperties();
                     serializedObject.Update();
-                    EditorApplication.delayCall += () => T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                    T23_EditorUtility.UpdateAllCommonBuffersRelate();
                 }
                 if (body.commonBuffer == null && !body.commonBufferSearched)
                 {
                     body.commonBuffer = T23_EditorUtility.GetAutoJoinCommonBuffer(body);
                     if (body.commonBuffer != null)
                     {
-                        EditorApplication.delayCall += () => T23_EditorUtility.UpdateAllCommonBuffersRelate();
+                        T23_EditorUtility.UpdateAllCommonBuffersRelate();
                     }
                     body.commonBufferSearched = true;
                 }
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void OnDestroy()
+        {
+            body.commonBuffer = null;
+            T23_EditorUtility.UpdateAllCommonBuffersRelate();
         }
     }
 #endif
