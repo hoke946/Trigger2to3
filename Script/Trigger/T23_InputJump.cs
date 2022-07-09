@@ -16,8 +16,7 @@ public class T23_InputJump : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = false;
 
-    [SerializeField]
-    private bool inputValue = true;
+    public bool inputValue = true;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

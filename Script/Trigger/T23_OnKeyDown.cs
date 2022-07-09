@@ -14,11 +14,9 @@ public class T23_OnKeyDown : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = false;
 
-    [SerializeField]
-    private KeyCode key;
+    public KeyCode key;
 
-    [SerializeField]
-    private string keyFree;
+    public string keyFree;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

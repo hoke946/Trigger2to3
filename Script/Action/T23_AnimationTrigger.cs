@@ -16,14 +16,12 @@ public class T23_AnimationTrigger : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private Animator[] recievers;
+    public Animator[] recievers;
 
-    [SerializeField]
-    private string trigger;
+    public string trigger;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

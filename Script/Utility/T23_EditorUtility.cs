@@ -373,5 +373,47 @@ public class T23_EditorUtility : Editor
         }
         return new string(_list.ToArray());
     }
+
+    public static T23_CommonBuffer AddCommonBuffer()
+    {
+        GameObject[] rootObjs = null;
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        if (stage != null)
+        {
+            rootObjs = new GameObject[1];
+            rootObjs[0] = stage.prefabContentsRoot;
+        }
+        else
+        {
+            rootObjs = EditorSceneManager.GetActiveScene().GetRootGameObjects();
+        }
+        int num = 1;
+        string objName = "";
+        while (true)
+        {
+            objName = "CommonBuffer" + (num == 1 ? "" : num.ToString());
+            bool duplicate = false;
+            foreach (var obj in rootObjs)
+            {
+                if (obj.name == objName)
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate)
+            {
+                break;
+            }
+            num++;
+        }
+        var commonBufferObj = new GameObject(objName);
+        var usharp = commonBufferObj.AddComponent<T23_CommonBuffer>();
+        UdonSharpBehaviour[] usharpArray = { usharp };
+        var udon = UdonSharpEditorUtility.ConvertToUdonBehaviours(usharpArray);
+        var commonBuffer = UdonSharpEditorUtility.FindProxyBehaviour(udon[0]) as T23_CommonBuffer;
+        T23_EditorUtility.JoinAllBufferingBroadcasts(commonBuffer);
+        return commonBuffer;
+    }
 }
 #endif

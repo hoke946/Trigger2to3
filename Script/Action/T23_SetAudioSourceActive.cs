@@ -18,18 +18,15 @@ public class T23_SetAudioSourceActive : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private AudioSource[] recievers;
+    public AudioSource[] recievers;
 
-    [SerializeField]
-    private bool toggle;
+    public bool toggle;
 
-    [SerializeField]
     [Tooltip("if not toggle")]
-    private bool operation = true;
+    public bool operation = true;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

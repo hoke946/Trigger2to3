@@ -16,11 +16,10 @@ public class T23_PickupDrop : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private VRC_Pickup[] recievers;
+    public VRC_Pickup[] recievers;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

@@ -14,17 +14,13 @@ public class T23_OnTimer : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool repeat;
+    public bool repeat;
 
-    [SerializeField]
-    private bool resetOnEnable;
+    public bool resetOnEnable;
 
-    [SerializeField]
-    private float lowPeriodTime;
+    public float lowPeriodTime;
 
-    [SerializeField]
-    private float highPeriodTime;
+    public float highPeriodTime;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

@@ -16,26 +16,20 @@ public class T23_SetVoiceParameters : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private bool triggeredPlayer = false;
+    public bool triggeredPlayer = false;
 
-    [SerializeField]
-    private float distanceFar = 25;
+    public float distanceFar = 25;
 
-    [SerializeField]
-    private float distanceNear = 0;
+    public float distanceNear = 0;
 
-    [SerializeField]
-    private float gain = 15;
+    public float gain = 15;
 
-    [SerializeField]
-    private bool lowpass = true;
+    public bool lowpass = true;
 
-    [SerializeField]
-    private float volumetricRadius = 0;
+    public float volumetricRadius = 0;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

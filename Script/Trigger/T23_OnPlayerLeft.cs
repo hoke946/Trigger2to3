@@ -14,8 +14,7 @@ public class T23_OnPlayerLeft : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool excludeLocal;
+    public bool excludeLocal;
 
     [HideInInspector]
     public VRCPlayerApi triggeredPlayer = Networking.LocalPlayer;

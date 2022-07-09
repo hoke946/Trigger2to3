@@ -16,11 +16,9 @@ public class T23_MidiControlChange : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = false;
 
-    [SerializeField]
-    private int channel;
+    public int channel;
 
-    [SerializeField]
-    private int number;
+    public int number;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

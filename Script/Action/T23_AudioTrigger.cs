@@ -16,11 +16,10 @@ public class T23_AudioTrigger : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private AudioSource[] recievers;
+    public AudioSource[] recievers;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

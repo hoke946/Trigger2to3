@@ -17,8 +17,8 @@ public class T23_SetAvatarUse : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

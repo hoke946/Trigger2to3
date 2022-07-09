@@ -16,11 +16,9 @@ public class T23_SetRandomChildActive : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private GameObject[] recievers;
-    
-    [SerializeField]
-    private bool operation = true;
+    public GameObject[] recievers;
+
+    public bool operation = true;
 
     private int seedOffset = 100;
 

@@ -14,8 +14,7 @@ public class T23_OnPlayerRespawn : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool localOnly;
+    public bool localOnly;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

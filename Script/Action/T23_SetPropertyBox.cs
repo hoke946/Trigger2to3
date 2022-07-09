@@ -18,24 +18,20 @@ public class T23_SetPropertyBox : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private T23_PropertyBox propertyBox;
+    public T23_PropertyBox propertyBox;
 
-    [SerializeField]
-    private int calcOperator;
+    public int calcOperator;
 
-    [SerializeField] private bool value_bool;
-    [SerializeField] private int value_int;
-    [SerializeField] private float value_float;
-    [SerializeField] private Vector3 value_Vector3;
-    [SerializeField] private string value_string;
-    [SerializeField]
-    private T23_PropertyBox valuePropertyBox;
-    [SerializeField]
-    private bool usePropertyBox;
+    public bool value_bool;
+    public int value_int;
+    public float value_float;
+    public Vector3 value_Vector3;
+    public string value_string;
+    public T23_PropertyBox valuePropertyBox;
+    public bool usePropertyBox;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

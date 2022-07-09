@@ -16,29 +16,20 @@ public class T23_SetPlayerSpeed : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private float walkSpeed = 2;
-    [SerializeField]
-    private T23_PropertyBox propertyBox_walk;
-    [SerializeField]
-    private bool usePropertyBox_walk;
+    public float walkSpeed = 2;
+    public T23_PropertyBox propertyBox_walk;
+    public bool usePropertyBox_walk;
 
-    [SerializeField]
-    private float runSpeed = 4;
-    [SerializeField]
-    private T23_PropertyBox propertyBox_run;
-    [SerializeField]
-    private bool usePropertyBox_run;
+    public float runSpeed = 4;
+    public T23_PropertyBox propertyBox_run;
+    public bool usePropertyBox_run;
 
-    [SerializeField]
-    private float strafeSpeed = 2;
-    [SerializeField]
-    private T23_PropertyBox propertyBox_strafe;
-    [SerializeField]
-    private bool usePropertyBox_strafe;
+    public float strafeSpeed = 2;
+    public T23_PropertyBox propertyBox_strafe;
+    public bool usePropertyBox_strafe;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

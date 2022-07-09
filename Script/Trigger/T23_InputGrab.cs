@@ -16,11 +16,9 @@ public class T23_InputGrab : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = false;
 
-    [SerializeField]
-    private bool inputValue = true;
+    public bool inputValue = true;
 
-    [SerializeField]
-    private int hand;
+    public int hand;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

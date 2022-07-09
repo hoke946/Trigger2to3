@@ -14,41 +14,30 @@ using System.Collections.Generic;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class T23_AudioBank : UdonSharpBehaviour
 {
-    [SerializeField]
-    private AudioSource source;
+    public AudioSource source;
 
-    [SerializeField]
-    private int playbackOrder;
+    public int playbackOrder;
 
-    [SerializeField]
-    private int playbackStyle;
+    public int playbackStyle;
 
-    [SerializeField]
-    private bool repeat;
+    public bool repeat;
 
-    [SerializeField, Range(-3, 3)]
-    private float minPitchRange = 1;
+    [Range(-3, 3)]
+    public float minPitchRange = 1;
 
-    [SerializeField, Range(-3, 3)]
-    private float maxPitchRange = 1;
+    [Range(-3, 3)]
+    public float maxPitchRange = 1;
 
-    [SerializeField]
-    private GameObject onPlay;
-    [SerializeField]
-    private string onPlayCustomName;
+    public GameObject onPlay;
+    public string onPlayCustomName;
 
-    [SerializeField]
-    private GameObject onStop;
-    [SerializeField]
-    private string onStopCustomName;
+    public GameObject onStop;
+    public string onStopCustomName;
 
-    [SerializeField]
-    private GameObject onChange;
-    [SerializeField]
-    private string onChangeCustomName;
+    public GameObject onChange;
+    public string onChangeCustomName;
 
-    [SerializeField]
-    private AudioClip[] clips;
+    public AudioClip[] clips;
 
     [HideInInspector]
     public int[] order;

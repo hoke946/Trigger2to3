@@ -16,18 +16,14 @@ public class T23_SetChildrenActive : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private GameObject[] recievers;
+    public GameObject[] recievers;
 
-    [SerializeField]
-    private bool operation = true;
-    [SerializeField]
-    private T23_PropertyBox propertyBox;
-    [SerializeField]
-    private bool usePropertyBox;
+    public bool operation = true;
+    public T23_PropertyBox propertyBox;
+    public bool usePropertyBox;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

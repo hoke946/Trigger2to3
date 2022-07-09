@@ -17,17 +17,14 @@ public class T23_CallUdonMethod : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private UdonBehaviour udonBehaviour;
-    
-    [SerializeField]
-    private string method;
+    public UdonBehaviour udonBehaviour;
 
-    [SerializeField]
-    private int ownershipControl;
+    public string method;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    public int ownershipControl;
+
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

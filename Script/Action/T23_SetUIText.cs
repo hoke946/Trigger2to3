@@ -17,18 +17,14 @@ public class T23_SetUIText : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private Text[] recievers;
+    public Text[] recievers;
 
-    [SerializeField]
-    private string text;
-    [SerializeField]
-    private T23_PropertyBox propertyBox;
-    [SerializeField]
-    private bool usePropertyBox;
+    public string text;
+    public T23_PropertyBox propertyBox;
+    public bool usePropertyBox;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

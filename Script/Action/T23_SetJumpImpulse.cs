@@ -16,15 +16,12 @@ public class T23_SetJumpImpulse : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private float impulse = 3;
-    [SerializeField]
-    private T23_PropertyBox propertyBox;
-    [SerializeField]
-    private bool usePropertyBox;
+    public float impulse = 3;
+    public T23_PropertyBox propertyBox;
+    public bool usePropertyBox;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;

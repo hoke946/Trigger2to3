@@ -14,16 +14,12 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     public string title;
     public const bool isBroadcast = true;
 
-    [SerializeField]
-    private float delayInSeconds;
+    public float delayInSeconds;
 
     public bool randomize;
 
     private UdonSharpBehaviour[] actions;
     private int[] priorities;
-
-    private bool fired = false;
-    private float timer = 0;
 
     [HideInInspector]
     public VRCPlayerApi triggeredPlayer;
@@ -99,9 +95,7 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
     {
         if (delayInSeconds > 0)
         {
-            fired = true;
-            this.enabled = true;
-            timer = 0;
+            SendCustomEventDelayedSeconds(nameof(Fire), delayInSeconds);
         }
         else
         {
@@ -109,21 +103,7 @@ public class T23_BroadcastLocal : UdonSharpBehaviour
         }
     }
 
-    void Update()
-    {
-        if (fired)
-        {
-            timer += Time.deltaTime;
-            if (timer > delayInSeconds)
-            {
-                Fire();
-                fired = false;
-                this.enabled = false;
-            }
-        }
-    }
-
-    private void Fire()
+    public void Fire()
     {
         if (actions == null) { return; }
 

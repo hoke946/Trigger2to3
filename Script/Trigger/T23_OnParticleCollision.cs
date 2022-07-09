@@ -18,8 +18,7 @@ public class T23_OnParticleCollision : UdonSharpBehaviour
     //[SerializeField]
     //private bool triggerIndividuals = true;
 
-    [SerializeField]
-    private LayerMask layers = 0;
+    public LayerMask layers = 0;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

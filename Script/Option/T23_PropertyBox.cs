@@ -24,32 +24,23 @@ public class T23_PropertyBox : UdonSharpBehaviour
 
     public int trackType;
 
-    [SerializeField]
-    private GameObject targetObject;
+    public GameObject targetObject;
 
-    [SerializeField]
-    private int targetPlayer;
+    public int targetPlayer;
 
-    [SerializeField]
-    private UdonSharpBehaviour targetTrigger;
+    public UdonSharpBehaviour targetTrigger;
 
-    [SerializeField]
-    private Object targetComponent;
+    public Object targetComponent;
 
-    [SerializeField]
-    private int index;
+    public int index;
 
-    [SerializeField]
-    private string spot;
+    public string spot;
 
-    [SerializeField]
-    private string spotDetail;
+    public string spotDetail;
 
-    [SerializeField]
-    private bool positionTracking;
+    public bool positionTracking;
 
-    [SerializeField]
-    private bool updateEveryFrame;
+    public bool updateEveryFrame;
 
     private System.DateTime startTime;
 
@@ -244,76 +235,38 @@ public class T23_PropertyBox : UdonSharpBehaviour
                     {
                         body.targetComponent = null;
                         serializedObject.FindProperty("spot").stringValue = "";
+                        List<System.Type> UITypes = new List<System.Type>();
                         if (body.valueType == 0)
                         {
-                            body.targetComponent = body.targetObject.GetComponent<Toggle>();
-                            if (body.targetComponent != null)
-                            {
-                                serializedObject.FindProperty("spot").stringValue = "Toggle";
-                            }
+                            UITypes.Add(typeof(Toggle));
                         }
                         if (body.valueType == 1)
                         {
-                            body.targetComponent = body.targetObject.GetComponent<Text>();
-                            if (body.targetComponent != null)
-                            {
-                                serializedObject.FindProperty("spot").stringValue = "Text";
-                            }
-                            else
-                            {
-                                body.targetComponent = body.targetObject.GetComponent<InputField>();
-                                if (body.targetComponent != null)
-                                {
-                                    serializedObject.FindProperty("spot").stringValue = "InputField";
-                                }
-                            }
+                            UITypes.Add(typeof(Text));
+                            UITypes.Add(typeof(InputField));
+                            UITypes.Add(typeof(Dropdown));
                         }
                         if (body.valueType == 2)
                         {
-                            body.targetComponent = body.targetObject.GetComponent<Slider>();
-                            if (body.targetComponent != null)
-                            {
-                                serializedObject.FindProperty("spot").stringValue = "Slider";
-                            }
-                            else
-                            {
-                                body.targetComponent = body.targetObject.GetComponent<Scrollbar>();
-                                if (body.targetComponent != null)
-                                {
-                                    serializedObject.FindProperty("spot").stringValue = "Scrollbar";
-                                }
-                                else
-                                {
-                                    body.targetComponent = body.targetObject.GetComponent<Text>();
-                                    if (body.targetComponent != null)
-                                    {
-                                        serializedObject.FindProperty("spot").stringValue = "Text";
-                                    }
-                                    else
-                                    {
-                                        body.targetComponent = body.targetObject.GetComponent<InputField>();
-                                        if (body.targetComponent != null)
-                                        {
-                                            serializedObject.FindProperty("spot").stringValue = "InputField";
-                                        }
-                                    }
-                                }
-                            }
+                            UITypes.Add(typeof(Slider));
+                            UITypes.Add(typeof(Scrollbar));
+                            UITypes.Add(typeof(Text));
+                            UITypes.Add(typeof(InputField));
+                            UITypes.Add(typeof(Toggle));
+                            UITypes.Add(typeof(Dropdown));
                         }
                         if (body.valueType == 4)
                         {
-                            body.targetComponent = body.targetObject.GetComponent<Text>();
+                            UITypes.Add(typeof(Text));
+                            UITypes.Add(typeof(InputField));
+                        }
+                        foreach (var type in UITypes)
+                        {
+                            body.targetComponent = body.targetObject.GetComponent(type);
                             if (body.targetComponent != null)
                             {
-                                serializedObject.FindProperty("spot").stringValue = "Text";
-                            }
-                            else
-                            {
-                                body.targetComponent = body.targetObject.GetComponent<InputField>();
-                                if (body.targetComponent != null)
-                                {
-                                    serializedObject.FindProperty("spot").stringValue = "InputField";
-                                }
+                                serializedObject.FindProperty("spot").stringValue = type.Name;
+                                break;
                             }
                         }
                         if (body.targetComponent == null)
@@ -655,6 +608,11 @@ public class T23_PropertyBox : UdonSharpBehaviour
                         var inputField = (InputField)targetComponent;
                         int.TryParse(inputField.text, out value_i);
                     }
+                    if (spot == "Dropdown")
+                    {
+                        var dropdown = (Dropdown)targetComponent;
+                        value_i = dropdown.value;
+                    }
                 }
                 if (valueType == 2)
                 {
@@ -677,6 +635,11 @@ public class T23_PropertyBox : UdonSharpBehaviour
                     {
                         var inputField = (InputField)targetComponent;
                         float.TryParse(inputField.text, out value_f);
+                    }
+                    if (spot == "Dropdown")
+                    {
+                        var dropdown = (Dropdown)targetComponent;
+                        value_f = dropdown.value;
                     }
                 }
                 if (valueType == 4)

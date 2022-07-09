@@ -14,11 +14,9 @@ public class T23_OnExitCollider : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool triggerIndividuals = true;
+    public bool triggerIndividuals = true;
 
-    [SerializeField]
-    private LayerMask layers = 0;
+    public LayerMask layers = 0;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

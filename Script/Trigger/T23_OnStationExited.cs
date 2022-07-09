@@ -14,8 +14,7 @@ public class T23_OnStationExited : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool localOnly = false;
+    public bool localOnly = false;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

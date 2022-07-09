@@ -14,11 +14,9 @@ public class T23_OnPlayerJoined : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool excludeLocal = true;
+    public bool excludeLocal = true;
 
-    [SerializeField]
-    private bool excludePostJoinng = true;
+    public bool excludePostJoinng = true;
 
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;

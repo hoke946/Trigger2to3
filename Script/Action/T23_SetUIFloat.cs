@@ -3,20 +3,23 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-public class T23_SetGravityStrength : UdonSharpBehaviour
+public class T23_SetUIFloat : UdonSharpBehaviour
 {
     public int groupID;
     public int priority;
     public string title;
     public const bool isAction = true;
 
-    public float gravityStrength = 1;
+    public GameObject[] recievers;
+
+    public float operation;
     public T23_PropertyBox propertyBox;
     public bool usePropertyBox;
 
@@ -30,17 +33,19 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
     private T23_BroadcastGlobal broadcastGlobal;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
-    [CustomEditor(typeof(T23_SetGravityStrength))]
-    internal class T23_SetGravityStrengthEditor : Editor
+    [CustomEditor(typeof(T23_SetUIFloat))]
+    internal class T23_SetUIFloatEditor : Editor
     {
-        T23_SetGravityStrength body;
+        T23_SetUIFloat body;
         T23_Master master;
 
         SerializedProperty prop;
 
+        private ReorderableList recieverReorderableList;
+
         void OnEnable()
         {
-            body = target as T23_SetGravityStrength;
+            body = target as T23_SetUIFloat;
 
             master = T23_Master.GetMaster(body, body.groupID, 2, true, body.title);
         }
@@ -70,7 +75,22 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
                 body.priority = EditorGUILayout.IntField("Priority", body.priority);
             }
 
-            T23_EditorUtility.PropertyBoxField(serializedObject, "gravityStrength", "propertyBox", "usePropertyBox");
+            SerializedProperty recieverProp = serializedObject.FindProperty("recievers");
+            if (recieverReorderableList == null)
+            {
+                recieverReorderableList = new ReorderableList(serializedObject, recieverProp);
+                recieverReorderableList.draggable = true;
+                recieverReorderableList.displayAdd = true;
+                recieverReorderableList.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Recievers");
+                recieverReorderableList.drawElementCallback = (rect, index, isActive, isFocused) =>
+                {
+                    rect.height = EditorGUIUtility.singleLineHeight;
+                    body.recievers[index] = (GameObject)EditorGUI.ObjectField(rect, body.recievers[index], typeof(GameObject), true);
+                };
+            }
+            recieverReorderableList.DoLayoutList();
+
+            T23_EditorUtility.PropertyBoxField(serializedObject, "operation", "propertyBox", "usePropertyBox");
             if (!master || master.randomize)
             {
                 prop = serializedObject.FindProperty("randomAvg");
@@ -142,9 +162,32 @@ public class T23_SetGravityStrength : UdonSharpBehaviour
 
         if (usePropertyBox && propertyBox)
         {
-            gravityStrength = propertyBox.value_f;
+            operation = propertyBox.value_f;
         }
-        Networking.LocalPlayer.SetGravityStrength(gravityStrength);
+        for (int i = 0; i < recievers.Length; i++)
+        {
+            if (recievers[i])
+            {
+                Execute(recievers[i]);
+            }
+        }
+    }
+
+    private void Execute(GameObject target)
+    {
+        var slider = target.GetComponent<Slider>();
+        if (slider != null)
+        {
+            slider.value = operation;
+            return;
+        }
+
+        var scrollbar = target.GetComponent<Scrollbar>();
+        if (scrollbar != null)
+        {
+            scrollbar.value = operation;
+            return;
+        }
     }
 
     private bool RandomJudgement()

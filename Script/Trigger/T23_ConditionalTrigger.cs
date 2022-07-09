@@ -15,26 +15,22 @@ public class T23_ConditionalTrigger : UdonSharpBehaviour
     public string title;
     public const bool isTrigger = true;
 
-    [SerializeField]
-    private bool passive;
+    public bool passive;
 
-    [SerializeField]
-    private bool allowContinuity;
+    public bool allowContinuity;
 
-    [SerializeField] private T23_PropertyBox basePropertyBox;
+    public T23_PropertyBox basePropertyBox;
 
-    [SerializeField]
-    private int compOperator;
+    public int compOperator;
 
-    [SerializeField]
-    private int compParameterType;
+    public int compParameterType;
 
-    [SerializeField] private T23_PropertyBox compPropertyBox;
-    [SerializeField] private bool comp_b;
-    [SerializeField] private int comp_i;
-    [SerializeField] private float comp_f;
-    [SerializeField] private Vector3 comp_v3;
-    [SerializeField] private string comp_s;
+    public T23_PropertyBox compPropertyBox;
+    public bool comp_b;
+    public int comp_i;
+    public float comp_f;
+    public Vector3 comp_v3;
+    public string comp_s;
 
     private object value;
     private object before = null;

@@ -18,15 +18,12 @@ public class T23_SetColliderActive : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private Collider[] recievers;
+    public Collider[] recievers;
 
-    [SerializeField]
-    private bool toggle;
+    public bool toggle;
 
-    [SerializeField]
     [Tooltip("if not toggle")]
-    private bool operation = true;
+    public bool operation = true;
 
     [SerializeField, Range(0, 1)]
     private float randomAvg;

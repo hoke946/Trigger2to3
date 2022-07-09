@@ -16,19 +16,15 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     public string title;
     public const bool isBroadcast = true;
 
-    [SerializeField]
-    private NetworkEventTarget sendTarget;
+    public NetworkEventTarget sendTarget;
 
-    [SerializeField]
     [Tooltip("0:Always\n1:Master\n2:Owner")]
-    private int useablePlayer;
+    public int useablePlayer;
 
-    [SerializeField]
     [Tooltip("0:Unbuffered\n1:BufferOne\n2:Everytime")]
-    private int bufferType;
+    public int bufferType;
 
-    [SerializeField]
-    private float delayInSeconds;
+    public float delayInSeconds;
 
     public bool randomize;
 
@@ -46,8 +42,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     private bool synced = false;
     private bool synced2 = false;
-    private bool fired = false;
-    private float timer = 0;
     private int actionCount = 0;
     private int buffering_count = 0;
     private int missing_count = 0;
@@ -141,8 +135,20 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             else
             {
                 EditorGUI.BeginChangeCheck();
+                EditorGUILayout.BeginHorizontal();
                 prop = serializedObject.FindProperty("commonBuffer");
                 EditorGUILayout.PropertyField(prop);
+                if (body.commonBuffer == null)
+                {
+                    var buttonStyle = new GUIStyle(GUI.skin.button);
+                    buttonStyle.fontSize = 10;
+                    buttonStyle.stretchWidth = false;
+                    if (GUILayout.Button("Add CommonBuffer", buttonStyle))
+                    {
+                        T23_EditorUtility.AddCommonBuffer();
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
                 if (EditorGUI.EndChangeCheck())
                 {
                     serializedObject.ApplyModifiedProperties();
@@ -198,8 +204,14 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         if (useablePlayer == 1 && !Networking.IsMaster) { return; }
         if (useablePlayer == 2 && !Networking.IsOwner(gameObject)) { return; }
 
-        fired = true;
-        timer = 0;
+        if (delayInSeconds > 0)
+        {
+            SendCustomEventDelayedSeconds(nameof(SendNetworkFire), delayInSeconds);
+        }
+        else
+        {
+            SendNetworkFire();
+        }
     }
 
     void Update()
@@ -219,15 +231,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                 SetSynced();
             }
         }
-
-        if (fired)
-        {
-            timer += Time.deltaTime;
-            if (timer > delayInSeconds)
-            {
-                SendNetworkFire();
-            }
-        }
     }
 
     public void SetSynced()
@@ -235,11 +238,10 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         synced = true;
     }
 
-    private void SendNetworkFire()
+    public void SendNetworkFire()
     {
         if (actions == null)
         {
-            fired = false;
             return;
         }
 
@@ -251,7 +253,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         SendCustomNetworkEvent(sendTarget, "RecieveNetworkFire" + groupID.ToString());
 #endif
 
-        fired = false;
         return;
     }
 

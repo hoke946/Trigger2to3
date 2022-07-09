@@ -16,34 +16,24 @@ public class T23_TeleportPlayer : UdonSharpBehaviour
     public string title;
     public const bool isAction = true;
 
-    [SerializeField]
-    private bool byValue;
+    public bool byValue;
 
-    [SerializeField]
-    private Transform teleportLocation;
+    public Transform teleportLocation;
 
-    [SerializeField]
-    private Vector3 teleportPosition;
-    [SerializeField]
-    private T23_PropertyBox positionPropertyBox;
-    [SerializeField]
-    private bool positionUsePropertyBox;
+    public Vector3 teleportPosition;
+    public T23_PropertyBox positionPropertyBox;
+    public bool positionUsePropertyBox;
 
-    [SerializeField]
-    private Vector3 teleportRotation;
-    [SerializeField]
-    private T23_PropertyBox rotationPropertyBox;
-    [SerializeField]
-    private bool rotationUsePropertyBox;
+    public Vector3 teleportRotation;
+    public T23_PropertyBox rotationPropertyBox;
+    public bool rotationUsePropertyBox;
 
-    [SerializeField]
-    private VRC_SceneDescriptor.SpawnOrientation teleportOrientation;
+    public VRC_SceneDescriptor.SpawnOrientation teleportOrientation;
 
-    [SerializeField]
-    private bool lerpOnRemote;
+    public bool lerpOnRemote;
 
-    [SerializeField, Range(0, 1)]
-    private float randomAvg;
+    [Range(0, 1)]
+    public float randomAvg;
 
     private float randomMin = 0;
     private float randomMax = 0;
