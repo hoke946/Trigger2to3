@@ -16,6 +16,11 @@ public class T23_OnPlayerRespawn : UdonSharpBehaviour
 
     public bool localOnly;
 
+    [HideInInspector]
+    public VRCPlayerApi triggeredPlayer = Networking.LocalPlayer;
+    [HideInInspector]
+    public bool playerTrigger = true;
+
     private T23_BroadcastLocal broadcastLocal;
     private T23_BroadcastGlobal broadcastGlobal;
 
@@ -95,15 +100,16 @@ public class T23_OnPlayerRespawn : UdonSharpBehaviour
     {
         if (!localOnly || player == Networking.LocalPlayer)
         {
-            Trigger();
+            AnyPlayerTrigger(player);
         }
     }
 
-    private void Trigger()
+    private void AnyPlayerTrigger(VRCPlayerApi player)
     {
+        triggeredPlayer = player;
         if (broadcastLocal)
         {
-            broadcastLocal.Trigger();
+            broadcastLocal.AnyPlayerTrigger(player);
         }
         else if (broadcastGlobal)
         {

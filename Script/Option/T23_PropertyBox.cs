@@ -252,7 +252,6 @@ public class T23_PropertyBox : UdonSharpBehaviour
                             UITypes.Add(typeof(Scrollbar));
                             UITypes.Add(typeof(Text));
                             UITypes.Add(typeof(InputField));
-                            UITypes.Add(typeof(Toggle));
                             UITypes.Add(typeof(Dropdown));
                         }
                         if (body.valueType == 4)

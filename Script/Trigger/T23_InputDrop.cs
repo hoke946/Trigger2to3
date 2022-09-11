@@ -76,6 +76,7 @@ public class T23_InputDrop : UdonSharpBehaviour
 
             prop = serializedObject.FindProperty("inputValue");
             prop.boolValue = (InputValue)EditorGUILayout.EnumPopup("Value", (InputValue)System.Convert.ToInt32(body.inputValue)) == InputValue.Down;
+            prop = serializedObject.FindProperty("hand");
             prop.intValue = (int)(HandType)EditorGUILayout.EnumPopup("Hand", (HandType)System.Convert.ToInt32(body.hand));
 
             serializedObject.ApplyModifiedProperties();
