@@ -4,7 +4,10 @@ VRC_Triggerの機能の大部分を取り込み、VRC_Triggerに近い使用感�
 VRC_TriggerのUIを次のような3つのUdonで表現して、実現します。  
   
 ![Image](https://user-images.githubusercontent.com/44010396/121017422-391d0a80-c7d8-11eb-8a7f-6f354a823137.png)  
-  
+
+## ※注意※  
+***現在、VRChat Creator Companion(VCC) によって提供される UdonSharp ver1.0 以降のバージョンに対応できていません。***
+
 ## ダウンロード
   
 [こちら](https://github.com/hoke946/Trigger2to3/releases)から入手できます。
