@@ -34,16 +34,9 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     private UdonSharpBehaviour[] actions;
     private int[] priorities;
 
-    [UdonSynced(UdonSyncMode.None)]
-    private bool syncReady;
-
-    [UdonSynced(UdonSyncMode.None)]
-    private int bufferTimes;
-
     private bool synced = false;
     private bool synced2 = false;
     private int actionCount = 0;
-    private int buffering_count = 0;
     private int missing_count = 0;
 
     [HideInInspector]
@@ -51,10 +44,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     [HideInInspector]
     public float randomValue = 0;
-
-    [HideInInspector]
-    [UdonSynced(UdonSyncMode.None)]
-    public int seed;
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(T23_BroadcastGlobal))]
@@ -131,6 +120,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
                     T23_EditorUtility.UpdateAllCommonBuffersRelate();
                 }
                 body.commonBufferSearched = false;
+                EditorGUILayout.HelpBox("CommonBufferを設定してください。", MessageType.Warning);
             }
             else
             {
@@ -183,20 +173,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         {
             commonBuffer.LinkBroadcast(this);
         }
-        else
-        {
-            if (Networking.IsOwner(gameObject))
-            {
-                bufferTimes = 0;
-                seed = Random.Range(0, 1000000000);
-                syncReady = true;
-                RequestSerialization();
-            }
-            else
-            {
-                SendCustomNetworkEvent(NetworkEventTarget.Owner, "RequestFirstSync" + groupID.ToString());
-            }
-        }
     }
 
     public void Trigger()
@@ -217,20 +193,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
     void Update()
     {
         if (synced) { synced2 = true; }
-
-        if (!synced && syncReady)
-        {
-            if (!commonBuffer)
-            {
-                if (buffering_count < bufferTimes)
-                {
-                    if (!UnconditionalFire()) { return; }
-                    buffering_count++;
-                    return;
-                }
-                SetSynced();
-            }
-        }
     }
 
     public void SetSynced()
@@ -416,22 +378,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
             Networking.SetOwner(Networking.LocalPlayer, commonBuffer.gameObject);
             commonBuffer.EntryBuffer(this, bufferType);
         }
-        else
-        {
-            if (bufferType == 1)
-            {
-                if (bufferTimes == 0)
-                {
-                    bufferTimes = 1;
-                    RequestSerialization();
-                }
-            }
-            else if (bufferType == 2)
-            {
-                bufferTimes++;
-                RequestSerialization();
-            }
-        }
         Fire();
     }
 
@@ -492,11 +438,6 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         return new_array;
     }
 
-    public bool IsSyncReady()
-    {
-        return syncReady;
-    }
-
     public int GetSeed()
     {
         if (commonBuffer)
@@ -505,7 +446,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
         }
         else
         {
-            return seed;
+            return actionCount;
         }
     }
 }
