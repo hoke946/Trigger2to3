@@ -9,7 +9,8 @@ VRC_TriggerのUIを次のような3つのUdonで表現して、実現します�
   
 [こちら](https://github.com/hoke946/Trigger2to3/releases)から入手できます。  
 
-※UdonSharp v0.x 対応版です。VPM版(UdonSharp v1.x対応)をお求めの場合は、[こちら](https://github.com/hoke946/Trigger2to3_VPM/)へ移動してください。
+※こちらは UdonSharp v0.x 用で、**VCCには非対応です**。  
+　VCC対応版(UdonSharp v1.x対応)をお求めの場合は、[VPM版](https://github.com/hoke946/Trigger2to3_VPM/)へ移動してください。
   
 ## 導入方法・使用方法
 [こちら](https://www.wicurio.com/trigger2to3/)を参照してください。
