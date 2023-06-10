@@ -220,7 +220,7 @@ public class T23_BroadcastGlobal : UdonSharpBehaviour
 
     public void Fire()
     {
-        if (!synced2) { return; }   // 初期同期直後は待ちタスクが流れてくる場合があるので１フレーム待つ
+        if (commonBuffer && !synced2) { return; }   // 初期同期直後は待ちタスクが流れてくる場合があるので１フレーム待つ
         UnconditionalFire();
     }
 
